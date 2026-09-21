@@ -43,20 +43,20 @@
                 </a>
                 <div class="d-flex align-items-center">
                     <div class="navbar-text text-light small d-none d-md-block text-end me-3">
-                        <div><i class="fas fa-circle text-warning me-1" id="statusDot"></i><span id="syncStatus">Live Connected</span></div>
-                        <span class="sub-lang" style="color: #cbd5e1;">Google Sheets Synchronized</span>
+                        <div><i class="fas fa-circle text-warning me-1" id="statusDot"></i><span id="syncStatus">Secure Connected</span></div>
+                        <span class="sub-lang" style="color: #cbd5e1;">Strictly Confidential Query Only</span>
                     </div>
                     <button class="btn btn-sm btn-outline-light" id="logoutBtn"><i class="fas fa-sign-out-alt me-1"></i>Lock</button>
                 </div>
             </div>
         </nav>
 
-        <div class="container-fluid px-4 mb-5">
-            <!-- 模式一：個體數值查詢卡片 -->
-            <div class="card p-4 mb-4 shadow-sm">
+        <div class="container px-4 mb-5" style="max-width: 900px;">
+            <!-- 個體數值查詢專用面板 -->
+            <div class="card p-4 mb-4 shadow-sm border-start border-primary border-4">
                 <h5 class="fw-bold mb-3 text-primary">
-                    Individual Tag Profile Search
-                    <span class="sub-lang">Carian Profil Nombor Telinga Individu <span class="sub-lang-bm">| 个体耳号详细数值查询</span></span>
+                    Individual Tag Profile Secure Search
+                    <span class="sub-lang">Carian Profil Keselamatan Nombor Telinga <span class="sub-lang-bm">| 个体耳号安全查询与数值呈现</span></span>
                 </h5>
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
@@ -66,17 +66,18 @@
                             <option value="boar">Boar Grade (公豬)</option>
                         </select>
                     </div>
-                    <div class="col-md-5">
-                        <label class="form-label fw-bold text-secondary">Ear Tag Number <span class="sub-lang">Nombor Telinga <span class="sub-lang-bm">| 输入耳号</span></span></label>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-secondary">Ear Tag Number <span class="sub-lang">Nombor Telinga <span class="sub-lang-bm">| 输入耳号查询</span></span></label>
                         <input type="text" id="searchTagInput" class="form-control form-control-lg" placeholder="e.g. Y1336, D1408, L1422...">
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <button class="btn btn-primary btn-lg w-100 fw-bold" id="executeSearchBtn">
-                            <i class="fas fa-search me-1"></i> Search Profile / 查询数值
+                            <i class="fas fa-search me-1"></i> Search / 查询
                         </button>
                     </div>
                 </div>
 
+                <!-- 單隻個體詳細數值方框呈現（未搜尋前完全隱藏，不佔空間） -->
                 <div id="individualResultContainer" class="mt-4 pt-3 border-top" style="display: none;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6 class="fw-bold text-dark mb-0">Performance Profile Card <span class="sub-lang">Kad Profil Prestasi</span></h6>
@@ -86,62 +87,10 @@
                 </div>
             </div>
 
-            <!-- 模式二：批次篩選與報表下載 -->
-            <div class="card p-4 mb-4 bg-light border">
-                <h5 class="fw-bold mb-3 text-dark">
-                    Batch Filter & Report Download
-                    <span class="sub-lang">Penapisan Kelompok & Muat Turun Laporan <span class="sub-lang-bm">| 整批资料筛选与报表下载</span></span>
-                </h5>
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold text-secondary">Grade Filter <span class="sub-lang">Penapis Gred</span></label>
-                        <select id="filterGrade" class="form-select">
-                            <option value="">All Grades (全部等级)</option>
-                            <option value="A">Grade A (Elite)</option>
-                            <option value="B">Grade B (Multiplier)</option>
-                            <option value="C">Grade C (Cull)</option>
-                        </select>
-                    </div>
-                    <div class="col-md-5">
-                        <label class="form-label fw-bold text-secondary">Breed Selection <span class="sub-lang">Pilihan Baka</span></label>
-                        <div class="d-flex gap-3 pt-2 bg-white p-2 rounded border">
-                            <div class="form-check"><input class="form-check-input batch-chk" type="checkbox" value="L" id="chkL" checked><label class="form-check-label fw-bold" for="chkL">L</label></div>
-                            <div class="form-check"><input class="form-check-input batch-chk" type="checkbox" value="Y" id="chkY" checked><label class="form-check-label fw-bold" for="chkY">Y</label></div>
-                            <div class="form-check"><input class="form-check-input batch-chk" type="checkbox" value="D" id="chkD" checked><label class="form-check-label fw-bold" for="chkD">D</label></div>
-                            <div class="form-check"><input class="form-check-input batch-chk" type="checkbox" value="LY" id="chkLY" checked><label class="form-check-label fw-bold" for="chkLY">LY</label></div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <button class="btn btn-success btn-lg w-100 fw-bold shadow-sm" id="downloadReportBtn">
-                            <i class="fas fa-file-download me-1"></i> Download Filtered Report (CSV)
-                            <span class="sub-lang" style="color: #e2e8f0;">Muat turun data CSV | 下载筛选后报表</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 總表清單 -->
-            <div class="card">
-                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">Complete Master Records <span class="sub-lang">Rekod Induk Lengkap</span></h5>
-                    <span class="badge bg-secondary" id="totalCount">0 Records</span>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0 text-center">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Category <span class="sub-lang">Kategori</span></th>
-                                <th>Grade <span class="sub-lang">Gred</span></th>
-                                <th>Ear Tag <span class="sub-lang">No. Telinga</span></th>
-                                <th>Breed <span class="sub-lang">Baka</span></th>
-                                <th>Key Metrics <span class="sub-lang">Metrik Utama</span></th>
-                            </tr>
-                        </thead>
-                        <tbody id="dataTableBody">
-                            <tr><td colspan="5" class="text-center py-4 text-muted">Loading data...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+            <!-- 安全提示看板 -->
+            <div class="alert alert-secondary text-center small py-3" role="alert">
+                <i class="fas fa-shield-alt me-1"></i> <strong>Confidentiality Notice:</strong> This system is configured for secure individual lookup only. Raw data export and batch file downloading have been permanently disabled to protect proprietary breeding assets.
+                <span class="d-block text-muted" style="font-size:0.68rem;">Notis Sulit: Sistem ini hanya untuk carian individu. Muat turun fail data mentah telah dilumpuhkan.</span>
             </div>
         </div>
     </div>
