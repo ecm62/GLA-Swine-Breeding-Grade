@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GLA Swine Breeding & Selection System | GLA種畜評級與留種決策查詢系統</title>
+    <title>GLA Swine Breeding & Selection System | 種畜評級與留種決策查詢系統</title>
     <!-- Bootstrap 5 & FontAwesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Font Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -22,289 +19,140 @@
             --grade-c: #ef4444;
             --bg: #f8fafc;
         }
-        body { 
-            background-color: var(--bg); 
-            color: #334155; 
-            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
-        }
-        .navbar { 
-            background-color: var(--primary); 
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        .card { 
-            border: none; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05); 
-            border-radius: 0.85rem; 
-        }
+        body { background-color: var(--bg); color: #334155; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        .navbar { background-color: var(--primary); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .card { border: none; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border-radius: 0.85rem; }
         .badge-grade-A { background-color: var(--grade-a); color: white; }
         .badge-grade-B { background-color: var(--grade-b); color: white; }
         .badge-grade-C { background-color: var(--grade-c); color: white; }
+        .lang-sub { display: block; font-size: 0.72rem; color: #64748b; font-weight: 400; }
+        .rule-card { background: #ffffff; border-left: 5px solid var(--accent); }
+        .table thead th { font-size: 0.85rem; font-weight: 600; vertical-align: middle; background-color: #f1f5f9; }
 
-        .lang-sub {
-            display: block;
-            font-size: 0.72rem;
-            color: #64748b;
-            font-weight: 400;
-        }
-        .lang-sub-bm {
-            display: block;
-            font-size: 0.70rem;
-            color: #94a3b8;
-            font-style: italic;
-        }
-
-        .rule-card { 
-            background: #ffffff; 
-            border-left: 5px solid var(--accent); 
-        }
-        .table thead th {
-            font-size: 0.85rem;
-            font-weight: 600;
-            vertical-align: middle;
-            background-color: #f1f5f9;
-        }
-
-        /* 密碼驗證遮罩層 */
         #authOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            z-index: 9999; display: flex; align-items: center; justify-content: center;
         }
-        .auth-card {
-            width: 100%;
-            max-width: 420px;
-            padding: 2.5rem;
-            border-radius: 1rem;
-            background: #ffffff;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-        }
+        .auth-card { width: 100%; max-width: 420px; padding: 2.5rem; border-radius: 1rem; background: #ffffff; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); }
     </style>
 </head>
 <body>
 
-    <!-- 密碼驗證模組 (三語對照) -->
+    <!-- 密碼驗證畫面 -->
     <div id="authOverlay">
         <div class="auth-card text-center">
-            <div class="mb-3 text-primary">
-                <i class="fas fa-user-lock fs-1"></i>
-            </div>
+            <div class="mb-3 text-primary"><i class="fas fa-user-lock fs-1"></i></div>
             <h4 class="fw-bold mb-1">系統授權訪問</h4>
             <div class="lang-sub mb-3">System Access Verification | Pengesahan Akses Sistem</div>
-            <p class="text-muted small mb-4">請輸入密碼以解鎖育種數據查詢功能。<br><span class="lang-sub">Please enter the password to access data.</span></p>
-            
             <div class="mb-3 text-start">
                 <input type="password" id="inputPassword" class="form-control form-control-lg text-center" placeholder="輸入密碼 / Password" autofocus>
                 <div class="text-danger small mt-2 d-none" id="authErrorMsg">
-                    <i class="fas fa-exclamation-circle me-1"></i>密碼錯誤，請重新輸入！ / Kata laluan salah!
+                    <i class="fas fa-exclamation-circle me-1"></i>密碼錯誤！ / Kata laluan salah!
                 </div>
             </div>
-            
-            <button class="btn btn-primary btn-lg w-100 fw-bold" id="authSubmitBtn">
-                確認進入 / Access System
-            </button>
+            <button class="btn btn-primary btn-lg w-100 fw-bold" id="authSubmitBtn">確認進入 / Access</button>
         </div>
     </div>
 
-    <!-- 主要查詢內容容器 (驗證通過後顯示) -->
+    <!-- 主系統畫面 -->
     <div id="mainApp" style="display: none;">
-        <!-- 頂部導覽列 -->
         <nav class="navbar navbar-dark py-3 mb-4">
             <div class="container-fluid px-4">
                 <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
                     <i class="fas fa-dna me-2 text-warning fs-4"></i>
                     <div>
                         <div>GLA 種畜評級與留種決策查詢系統</div>
-                        <div style="font-size: 0.75rem; font-weight: normal; opacity: 0.85;">
-                            Breeding & Selection Dashboard | Sistem Pengumuman Gred Babi
-                        </div>
+                        <div style="font-size: 0.75rem; opacity: 0.85;">Breeding & Selection Dashboard | Sistem Gred Babi</div>
                     </div>
                 </a>
                 <div class="d-flex align-items-center">
                     <div class="navbar-text text-light small d-none d-md-block text-end me-3">
-                        <div><i class="fas fa-circle text-warning me-1" id="statusDot"></i><span id="syncStatus">連線中... / Connecting...</span></div>
-                        <div class="text-white-50" style="font-size: 0.7rem;">Google Sheets Live Sync</div>
+                        <div><i class="fas fa-circle text-warning me-1" id="statusDot"></i><span id="syncStatus">連線中...</span></div>
                     </div>
-                    <button class="btn btn-sm btn-outline-light" id="logoutBtn" title="登出系統">
-                        <i class="fas fa-sign-out-alt me-1"></i>鎖定
-                    </button>
+                    <button class="btn btn-sm btn-outline-light" id="logoutBtn"><i class="fas fa-sign-out-alt me-1"></i>鎖定</button>
                 </div>
             </div>
         </nav>
 
         <div class="container-fluid px-4 mb-5">
-            <!-- 運作規則與等級操作說明公告看板 (三語對照) -->
-            <div class="card p-4 mb-4 rule-card">
-                <div class="d-flex align-items-center mb-3">
-                    <i class="fas fa-info-circle text-primary fs-5 me-2"></i>
-                    <h5 class="fw-bold text-dark mb-0">
-                        等級操作定義與純種留種規則說明
-                        <span class="lang-sub">Grade Definitions & Purebred Selection Guidelines | Definisi Gred & Garis Panduan Pembiakan</span>
-                    </h5>
-                </div>
-                
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <div class="p-3 rounded bg-light border-start border-success border-4 h-100">
-                            <span class="badge badge-grade-A px-2 py-1 mb-1">A 級 / Grade A / Gred A</span>
-                            <div class="fw-bold text-dark small mt-1">Elite 核心群 / Core Herd / Kumpulan Elit</div>
-                            <div class="small text-secondary mt-1">
-                                遺傳表現卓越。公豬優先作為 AI 人工授精主力；母豬優先選育純種核心下一代。
-                                <span class="lang-sub">Elite genetic progress. Top priority for AI boars & purebred replacement dam lines.</span>
-                                <span class="lang-sub-bm">Kemajuan genetik terbaik. Keutamaan untuk AI dan penggantian baka tulen.</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="p-3 rounded bg-light border-start border-warning border-4 h-100">
-                            <span class="badge badge-grade-B px-2 py-1 mb-1">B 級 / Grade B / Gred B</span>
-                            <div class="fw-bold text-dark small mt-1">Multiplier 擴群 / Commercial Herd / Kumpulan Pengganda</div>
-                            <div class="small text-secondary mt-1">
-                                生長與繁殖數據達標穩定。用於常規批次配種生產與維持群體規模。
-                                <span class="lang-sub">Balanced performance. Maintained for regular commercial batch production.</span>
-                                <span class="lang-sub-bm">Prestasi seimbang. Digunakan untuk pengeluaran kelompok komersial biasa.</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="p-3 rounded bg-light border-start border-danger border-4 h-100">
-                            <span class="badge badge-grade-C px-2 py-1 mb-1">C 級 / Grade C / Gred C</span>
-                            <div class="fw-bold text-dark small mt-1">Cull 觀察淘汰群 / Observation & Cull / Pemerhatian & Singkir</div>
-                            <div class="small text-secondary mt-1">
-                                產能或精液品質低於門檻。列入淘汰觀察名單，不作留種使用。
-                                <span class="lang-sub">Below benchmark or semen quality deficit. Candidate for culling; no replacement.</span>
-                                <span class="lang-sub-bm">Prestasi atau kualiti mani di bawah standard. Calon untuk disingkir.</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 mt-3 pt-2 border-top">
-                        <div class="d-flex align-items-start">
-                            <i class="fas fa-check-double text-success me-2 mt-1"></i>
-                            <div class="small text-secondary">
-                                <strong>純種留種重要判定 (Replacement Policy / Dasar Pembiakan):</strong> 
-                                純種公母豬（Duroc / Landrace / Yorkshire），母豬於<strong>第 4 胎（含）以上</strong>且評級達標時提示留種參考；<strong>LY 雜交商品母豬僅供肉豬生產，不予留種建議</strong>。
-                                <span class="lang-sub">Purebred sows (Duroc, Landrace, Yorkshire) are recommended for replacement from Parity 4 onwards. LY crossbred sows are excluded (commercial slaughter production only).</span>
-                                <span class="lang-sub-bm">Induk baka tulen disyorkan untuk pembiakan dari Pariti 4 ke atas jika prestasi baik. Induk kacukan LY dikecualikan (hanya untuk pengeluaran komersial).</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 查詢過濾工具列 (三語對照) -->
+            <!-- 搜尋與下載工具列 -->
             <div class="card p-4 mb-4">
+                <h5 class="fw-bold mb-3"><i class="fas fa-filter me-2 text-primary"></i>篩選與資料下載專區 (Filter & Download Data)</h5>
                 <div class="row g-3 align-items-end">
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold text-secondary mb-1">
-                            輸入耳號查詢 
-                            <span class="lang-sub">Tag Search | Carian Nombor Telinga</span>
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-                            <input type="text" id="queryTag" class="form-control" placeholder="例: Y1336, D1408, L1422...">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-secondary">耳號查詢 / Tag Search</label>
+                        <input type="text" id="queryTag" class="form-control" placeholder="輸入耳號...">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold text-secondary">公母分類 / Category</label>
+                        <select id="queryCategory" class="form-select">
+                            <option value="all">全部 (All)</option>
+                            <option value="sow">母豬 (Sows)</option>
+                            <option value="boar">公豬 (Boars)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold text-secondary">等級篩選 / Grade</label>
+                        <select id="queryGrade" class="form-select">
+                            <option value="">全部等級 (All)</option>
+                            <option value="A">A 級 (Elite)</option>
+                            <option value="B">B 級 (Multiplier)</option>
+                            <option value="C">C 級 (Cull)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-secondary">品系複選 (L / Y / D)</label>
+                        <div class="d-flex gap-3 pt-1">
+                            <div class="form-check"><input class="form-check-input breed-chk" type="checkbox" value="L" id="chkL" checked><label class="form-check-label" for="chkL">L</label></div>
+                            <div class="form-check"><input class="form-check-input breed-chk" type="checkbox" value="Y" id="chkY" checked><label class="form-check-label" for="chkY">Y</label></div>
+                            <div class="form-check"><input class="form-check-input breed-chk" type="checkbox" value="D" id="chkD" checked><label class="form-check-label" for="chkD">D</label></div>
                         </div>
                     </div>
-
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold text-secondary mb-1">
-                            公母豬分類 
-                            <span class="lang-sub">Sex / Category | Kategori Jantina</span>
-                        </label>
-                        <select id="queryCategory" class="form-select">
-                            <option value="all">全部顯示 (All / Semua)</option>
-                            <option value="sow">母豬 (Sows / Induk Betina)</option>
-                            <option value="boar">公豬 (Boars / Babi Jantan)</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold text-secondary mb-1">
-                            等級篩選 
-                            <span class="lang-sub">Grade Filter | Penapis Gred</span>
-                        </label>
-                        <select id="queryGrade" class="form-select">
-                            <option value="">全部等級 (All Grades / Semua Gred)</option>
-                            <option value="A">A 級 (Grade A / Gred A)</option>
-                            <option value="B">B 級 (Grade B / Gred B)</option>
-                            <option value="C">C 級 (Grade C / Gred C)</option>
-                        </select>
-                    </div>
-
                     <div class="col-md-2">
-                        <button class="btn btn-outline-secondary w-100 py-2" id="resetBtn">
-                            <i class="fas fa-redo me-1"></i> 重設條件 
-                            <span class="d-block" style="font-size: 0.68rem;">Reset / Tetapkan Semula</span>
+                        <button class="btn btn-success w-100 py-2 fw-bold shadow-sm" id="downloadBtn">
+                            <i class="fas fa-download me-1"></i> 下載篩選資料
+                            <span class="d-block" style="font-size: 0.65rem;">Download Filtered CSV</span>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- 數據展示區塊 -->
+            <!-- 表格清單區塊 -->
             <div class="row">
-                <!-- 母豬清單 -->
                 <div class="col-12 mb-4" id="sowSection">
                     <div class="card">
                         <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                            <div>
-                                <h5 class="mb-0 fw-bold"><i class="fas fa-venus me-2 text-danger"></i>母豬評級與留種對照清單</h5>
-                                <span class="lang-sub">Sow Grade & Replacement Status | Senarai Gred & Status Pembiakan Induk</span>
-                            </div>
-                            <span class="badge bg-secondary px-3 py-2" id="sowCount">0 筆 (Rekod)</span>
+                            <h5 class="mb-0 fw-bold"><i class="fas fa-venus me-2 text-danger"></i>母豬清單 (Sow List)</h5>
+                            <span class="badge bg-secondary" id="sowCount">0 筆</span>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0 text-center">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>等級<span class="lang-sub">Grade | Gred</span></th>
-                                        <th>耳號<span class="lang-sub">Ear Tag | No. Telinga</span></th>
-                                        <th>品系<span class="lang-sub">Breed | Baka</span></th>
-                                        <th>胎次<span class="lang-sub">Parity | Pariti</span></th>
-                                        <th>生產指標 (SPI)<span class="lang-sub">Productivity Index</span></th>
-                                        <th>留種判定建議<span class="lang-sub">Selection Advice | Cadangan Pembiakan</span></th>
+                                        <th>等級</th><th>耳號</th><th>品系</th><th>胎次</th><th>SPI</th><th>留種判定建議</th>
                                     </tr>
                                 </thead>
-                                <tbody id="sowTableBody">
-                                    <tr><td colspan="6" class="text-center py-4 text-muted">連線載入中... / Loading data...</td></tr>
-                                </tbody>
+                                <tbody id="sowTableBody"><tr><td colspan="6" class="text-center py-4">載入中...</td></tr></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                <!-- 公豬清單 -->
                 <div class="col-12" id="boarSection">
                     <div class="card">
                         <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                            <div>
-                                <h5 class="mb-0 fw-bold"><i class="fas fa-mars me-2 text-primary"></i>公豬累積評級與使用策略清單</h5>
-                                <span class="lang-sub">Boar Ranking & Mating Strategy | Kedudukan & Strategi Babi Jantan</span>
-                            </div>
-                            <span class="badge bg-secondary px-3 py-2" id="boarCount">0 筆 (Rekod)</span>
+                            <h5 class="mb-0 fw-bold"><i class="fas fa-mars me-2 text-primary"></i>公豬清單 (Boar List)</h5>
+                            <span class="badge bg-secondary" id="boarCount">0 筆</span>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0 text-center">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>等級<span class="lang-sub">Grade | Gred</span></th>
-                                        <th>公豬耳號<span class="lang-sub">Ear Tag | No. Telinga</span></th>
-                                        <th>品系<span class="lang-sub">Breed | Baka</span></th>
-                                        <th>策略指標<span class="lang-sub">Strategy | Strategi</span></th>
-                                        <th>精液採集總量 (TSO)<span class="lang-sub">Total Sperm Output</span></th>
-                                        <th>操作指引<span class="lang-sub">Operation Guide | Panduan Operasi</span></th>
+                                        <th>等級</th><th>耳號</th><th>品系</th><th>策略</th><th>TSO</th><th>操作指引</th>
                                     </tr>
                                 </thead>
-                                <tbody id="boarTableBody">
-                                    <tr><td colspan="6" class="text-center py-4 text-muted">連線載入中... / Loading data...</td></tr>
-                                </tbody>
+                                <tbody id="boarTableBody"><tr><td colspan="6" class="text-center py-4">載入中...</td></tr></tbody>
                             </table>
                         </div>
                     </div>
@@ -314,236 +162,152 @@
     </div>
 
     <script>
-        // 系統存取密碼設定
         const SYSTEM_KEY = "yang";
-
-        // 您的正式 Apps Script Web App API 網址
         const API_URL = "https://script.google.com/macros/s/AKfycbzvpVM9rwy9eC3hUUiP7oIpYa_YNsotLJ5pW8A-c9jG_3eQ5BlLmeV9bQCkB-sH_c4wPA/exec";
         
         let rawSows = [];
         let rawBoars = [];
-        let isDataLoaded = false;
 
-        // 密碼驗證邏輯
         function verifyPassword() {
-            const inputVal = document.getElementById('inputPassword').value.trim();
-            const errorMsg = document.getElementById('authErrorMsg');
-
-            if (inputVal === SYSTEM_KEY) {
-                // 儲存至 sessionStorage，避免每次重新整理都需要重複輸入
-                sessionStorage.setItem("gla_auth_token", "authorized");
+            if (document.getElementById('inputPassword').value.trim() === SYSTEM_KEY) {
+                sessionStorage.setItem("gla_auth", "ok");
                 document.getElementById('authOverlay').style.display = "none";
                 document.getElementById('mainApp').style.display = "block";
-                
-                if (!isDataLoaded) {
-                    loadSheetData();
-                }
+                loadData();
             } else {
-                errorMsg.classList.remove('d-none');
-                document.getElementById('inputPassword').value = '';
-                document.getElementById('inputPassword').focus();
+                document.getElementById('authErrorMsg').classList.remove('d-none');
             }
         }
 
-        // 登出與鎖定
-        function lockSystem() {
-            sessionStorage.removeItem("gla_auth_token");
-            document.getElementById('mainApp').style.display = "none";
-            document.getElementById('authOverlay').style.display = "flex";
-            document.getElementById('inputPassword').value = '';
-            document.getElementById('authErrorMsg').classList.add('d-none');
-            document.getElementById('inputPassword').focus();
-        }
+        document.getElementById('authSubmitBtn').addEventListener('click', verifyPassword);
+        document.getElementById('inputPassword').addEventListener('keyup', e => { if (e.key === 'Enter') verifyPassword(); });
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            sessionStorage.removeItem("gla_auth");
+            location.reload();
+        });
 
-        async function loadSheetData() {
+        async function loadData() {
             try {
                 const res = await fetch(API_URL);
                 const data = await res.json();
                 rawSows = data.sows || [];
                 rawBoars = data.boars || [];
-                isDataLoaded = true;
-
-                document.getElementById('statusDot').className = "fas fa-circle text-success me-1";
-                document.getElementById('syncStatus').innerText = "已連線即時試算表 / Live Connected";
-                applyFilters();
-            } catch (err) {
-                console.error("載入失敗:", err);
-                document.getElementById('statusDot').className = "fas fa-circle text-danger me-1";
-                document.getElementById('syncStatus').innerText = "連線失敗 / Connection Failed";
+                document.getElementById('syncStatus').innerText = "已連線即時資料";
+                filterAndRender();
+            } catch (e) {
+                document.getElementById('syncStatus').innerText = "連線失敗";
             }
         }
 
-        function applyFilters() {
+        function getSelectedBreeds() {
+            let breeds = [];
+            if (document.getElementById('chkL').checked) breeds.push('L');
+            if (document.getElementById('chkY').checked) breeds.push('Y');
+            if (document.getElementById('chkD').checked) breeds.push('D');
+            return breeds;
+        }
+
+        function filterData() {
             const keyword = document.getElementById('queryTag').value.trim().toLowerCase();
             const grade = document.getElementById('queryGrade').value.toUpperCase();
-            const category = document.getElementById('queryCategory').value;
+            const selectedBreeds = getSelectedBreeds();
 
-            // 1. 母豬過濾
             const filteredSows = rawSows.filter(item => {
-                const tag = String(item["母豬耳號"] || item["Ear Number"] || item["Tag ID"] || item["Nombor Telinga"] || "").toLowerCase();
+                const tag = String(item["母豬耳號"] || item["Ear Number"] || "").toLowerCase();
                 const itemGrade = String(item["等級"] || item["Grade"] || "").toUpperCase();
+                const breed = String(item["親代品系 1"] || item["Breed"] || "").toUpperCase();
+                
                 const matchTag = !keyword || tag.includes(keyword);
                 const matchGrade = !grade || itemGrade.startsWith(grade);
-                return matchTag && matchGrade;
+                const matchBreed = selectedBreeds.length === 0 || selectedBreeds.some(b => breed.includes(b));
+                return matchTag && matchGrade && matchBreed;
             });
 
-            // 2. 公豬過濾
             const filteredBoars = rawBoars.filter(item => {
                 const tag = String(item["Tag ID"] || item["Boar Ear Tag"] || "").toLowerCase();
                 const itemGrade = String(item["Grade"] || item["等級"] || "").toUpperCase();
+                const breed = String(item["Breed"] || "").toUpperCase();
+                
                 const matchTag = !keyword || tag.includes(keyword);
                 const matchGrade = !grade || itemGrade.startsWith(grade);
-                return matchTag && matchGrade;
+                const matchBreed = selectedBreeds.length === 0 || selectedBreeds.some(b => breed.includes(b));
+                return matchTag && matchGrade && matchBreed;
             });
 
-            renderSows(filteredSows);
-            renderBoars(filteredBoars);
-
-            // 顯示控制
-            document.getElementById('sowSection').style.display = (category === 'boar') ? 'none' : 'block';
-            document.getElementById('boarSection').style.display = (category === 'sow') ? 'none' : 'block';
+            return { filteredSows, filteredBoars };
         }
 
-        function renderSows(sows) {
-            const tbody = document.getElementById('sowTableBody');
-            tbody.innerHTML = "";
-            document.getElementById('sowCount').innerText = sows.length + " 筆 (Rekod)";
+        function filterAndRender() {
+            const { filteredSows, filteredBoars } = filterData();
+            const category = document.getElementById('queryCategory').value;
 
-            if (sows.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">查無符合條件的母豬資料 / Tiada rekod dijumpai</td></tr>`;
-                return;
-            }
-
-            sows.forEach(item => {
-                const tag = item["母豬耳號"] || item["Ear Number"] || item["Tag ID"] || "--";
-                const breed = item["親代品系 1"] || item["Breed"] || item["Baka induk"] || "純種";
+            // 渲染母豬
+            const sowTbody = document.getElementById('sowTableBody');
+            sowTbody.innerHTML = "";
+            document.getElementById('sowCount').innerText = filteredSows.length + " 筆";
+            filteredSows.forEach(item => {
+                const tag = item["母豬耳號"] || item["Ear Number"] || "--";
+                const breed = item["親代品系 1"] || item["Breed"] || "--";
                 const grade = (item["等級"] || item["Grade"] || "B").toUpperCase().charAt(0);
-                const parity = parseInt(item["胎次"] || item["Parity"] || item["Pariti"] || 1);
+                const parity = item["胎次"] || item["Parity"] || 1;
                 const spi = item["計算 SPI"] || item["SPI"] || "--";
-
-                // 純種留種決策
-                const tagUpper = String(tag).toUpperCase();
-                const breedUpper = String(breed).toUpperCase();
-                const isPure = !tagUpper.includes("LY") && !breedUpper.includes("LY");
-
-                let advice = "";
-                if (isPure) {
-                    if (parity >= 4) {
-                        if (grade === 'A') {
-                            advice = `<span class="badge bg-success py-2 px-3">
-                                        <i class="fas fa-star me-1"></i>強烈建議留種 (第 ${parity} 胎純種)
-                                        <span class="d-block" style="font-size:0.68rem; font-weight:normal;">Highly Recommended for Replacement | Sangat Disyorkan Pembiakan</span>
-                                      </span>`;
-                        } else if (grade === 'B') {
-                            advice = `<span class="badge bg-warning text-dark py-2 px-3">
-                                        <i class="fas fa-check me-1"></i>視指數保留 (第 ${parity} 胎純種)
-                                        <span class="d-block" style="font-size:0.68rem; font-weight:normal;">Conditional Replacement | Pembiakan Bersyarat</span>
-                                      </span>`;
-                        } else {
-                            advice = `<span class="badge bg-secondary py-2 px-3">
-                                        C 級淘汰觀察 (第 ${parity} 胎)
-                                        <span class="d-block" style="font-size:0.68rem; font-weight:normal;">Observe & Cull | Pemerhatian & Singkir</span>
-                                      </span>`;
-                        }
-                    } else {
-                        advice = `<span class="text-muted small">
-                                    純種培育觀察中 (目前第 ${parity} 胎，未滿 4 胎)
-                                    <span class="lang-sub">Purebred Under Parity 4 (P${parity})</span>
-                                    <span class="lang-sub-bm">Baka tulen bawah Pariti 4</span>
-                                  </span>`;
-                    }
-                } else {
-                    advice = `<span class="text-secondary small">
-                                LY 雜交商品母豬（不作留種建議）
-                                <span class="lang-sub">LY Crossbred (Commercial Slaughter Only)</span>
-                                <span class="lang-sub-bm">Kacukan LY (Hanya Pengeluaran Komersial)</span>
-                              </span>`;
-                }
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td><span class="badge badge-grade-${grade} px-3 py-2 fw-bold fs-6">${grade}</span></td>
-                        <td class="fw-bold fs-6">${tag}</td>
-                        <td><span class="badge bg-light text-dark border">${breed}</span></td>
-                        <td><strong>${parity}</strong> <span class="text-muted small">胎/Parity</span></td>
-                        <td><span class="fw-semibold text-primary">${spi}</span></td>
-                        <td class="text-start">${advice}</td>
-                    </tr>
-                `;
+                sowTbody.innerHTML += `<tr><td><span class="badge badge-grade-${grade}">${grade}</span></td><td><b>${tag}</b></td><td>${breed}</td><td>第 ${parity} 胎</td><td>${spi}</td><td>-</td></tr>`;
             });
-        }
 
-        function renderBoars(boars) {
-            const tbody = document.getElementById('boarTableBody');
-            tbody.innerHTML = "";
-            document.getElementById('boarCount').innerText = boars.length + " 筆 (Rekod)";
-
-            if (boars.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">查無符合條件的公豬資料 / Tiada rekod dijumpai</td></tr>`;
-                return;
-            }
-
-            boars.forEach(item => {
+            // 渲染公豬
+            const boarTbody = document.getElementById('boarTableBody');
+            boarTbody.innerHTML = "";
+            document.getElementById('boarCount').innerText = filteredBoars.length + " 筆";
+            filteredBoars.forEach(item => {
                 const tag = item["Tag ID"] || item["Boar Ear Tag"] || "--";
                 const breed = item["Breed"] || "--";
                 const grade = (item["Grade"] || item["等級"] || "B").toUpperCase().charAt(0);
                 const strategy = item["Strategy"] || "--";
                 const tso = item["TSO"] || "--";
-
-                let opGuide = "";
-                if (grade === 'A') {
-                    opGuide = `<span class="text-success fw-bold">
-                                🔥 核心 AI 優先供精 (Elite AI Boar)
-                                <span class="lang-sub-bm">Keutamaan Inseminasi Buatan (AI)</span>
-                               </span>`;
-                } else if (grade === 'B') {
-                    opGuide = `<span class="text-warning fw-bold">
-                                ⚖️ 常規批次配種 (Batch Mating)
-                                <span class="lang-sub-bm">Pengawanan Kelompok Biasa</span>
-                               </span>`;
-                } else {
-                    opGuide = `<span class="text-danger fw-bold">
-                                ⚠️ 表現觀察 / 淘汰候補 (Cull / Review)
-                                <span class="lang-sub-bm">Pemerhatian / Calon Singkir</span>
-                               </span>`;
-                }
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td><span class="badge badge-grade-${grade} px-3 py-2 fw-bold fs-6">${grade}</span></td>
-                        <td class="fw-bold fs-6">${tag}</td>
-                        <td><span class="badge bg-light text-dark border">${breed}</span></td>
-                        <td><span class="badge bg-info text-dark">${strategy}</span></td>
-                        <td><span class="fw-semibold text-dark">${tso}</span></td>
-                        <td class="text-start">${opGuide}</td>
-                    </tr>
-                `;
+                boarTbody.innerHTML += `<tr><td><span class="badge badge-grade-${grade}">${grade}</span></td><td><b>${tag}</b></td><td>${breed}</td><td>${strategy}</td><td>${tso}</td><td>-</td></tr>`;
             });
+
+            document.getElementById('sowSection').style.display = (category === 'boar') ? 'none' : 'block';
+            document.getElementById('boarSection').style.display = (category === 'sow') ? 'none' : 'block';
         }
 
-        // 綁定事件監聽
-        document.getElementById('authSubmitBtn').addEventListener('click', verifyPassword);
-        document.getElementById('inputPassword').addEventListener('keyup', (e) => {
-            if (e.key === 'Enter') verifyPassword();
-        });
-        document.getElementById('logoutBtn').addEventListener('click', lockSystem);
+        // 一鍵下載篩選後資料為 CSV 檔案
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const { filteredSows, filteredBoars } = filterData();
+            let csvContent = "\uFEFF"; // UTF-8 BOM 確保 Excel 開啟中文不亂碼
+            
+            csvContent += "=== 母豬清單 (Sow List) ===\n";
+            csvContent += "等級,耳號,品系,胎次,SPI\n";
+            filteredSows.forEach(i => {
+                csvContent += `"${i["等級"]||i["Grade"]||""}","${i["母豬耳號"]||i["Ear Number"]||""}","${i["親代品系 1"]||i["Breed"]||""}","${i["胎次"]||i["Parity"]||""}","${i["計算 SPI"]||i["SPI"]||""}"\n`;
+            });
 
-        document.getElementById('queryTag').addEventListener('input', applyFilters);
-        document.getElementById('queryCategory').addEventListener('change', applyFilters);
-        document.getElementById('queryGrade').addEventListener('change', applyFilters);
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            document.getElementById('queryTag').value = '';
-            document.getElementById('queryCategory').value = 'all';
-            document.getElementById('queryGrade').value = '';
-            applyFilters();
+            csvContent += "\n=== 公豬清單 (Boar List) ===\n";
+            csvContent += "等級,耳號,品系,策略,TSO\n";
+            filteredBoars.forEach(i => {
+                csvContent += `"${i["Grade"]||i["等級"]||""}","${i["Tag ID"]||i["Boar Ear Tag"]||""}","${i["Breed"]||""}","${i["Strategy"]||""}","${i["TSO"]||""}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', `GLA_Swine_Report_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         });
 
-        // 頁面初始化檢查：若已驗證過則直接載入
+        document.getElementById('queryTag').addEventListener('input', filterAndRender);
+        document.getElementById('queryCategory').addEventListener('change', filterAndRender);
+        document.getElementById('queryGrade').addEventListener('change', filterAndRender);
+        document.querySelectorAll('.breed-chk').forEach(chk => chk.addEventListener('change', filterAndRender));
+
         window.addEventListener('DOMContentLoaded', () => {
-            if (sessionStorage.getItem("gla_auth_token") === "authorized") {
+            if (sessionStorage.getItem("gla_auth") === "ok") {
                 document.getElementById('authOverlay').style.display = "none";
                 document.getElementById('mainApp').style.display = "block";
-                loadSheetData();
+                loadData();
             }
         });
     </script>
