@@ -5,7 +5,6 @@ let rawSows = [];
 let rawBoars = [];
 let isDataLoaded = false;
 
-// 1. 密碼驗證
 function verifyPassword() {
     const pwd = document.getElementById('inputPassword').value.trim();
     if (pwd === SYSTEM_KEY) {
@@ -27,7 +26,6 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
     location.reload();
 });
 
-// 2. JSONP 載入
 function loadDataJSONP() {
     const statusDot = document.getElementById('statusDot');
     const syncStatus = document.getElementById('syncStatus');
@@ -41,7 +39,7 @@ function loadDataJSONP() {
         isDataLoaded = true;
         
         statusDot.className = "fas fa-circle text-success me-1";
-        syncStatus.innerText = `Live Connected (${rawSows.length + rawBoars.length} records)`;
+        syncStatus.innerText = `Live Connected (Sows: ${rawSows.length}, Boars: ${rawBoars.length})`;
         
         const oldScript = document.getElementById('gasJsonpScript');
         if (oldScript) oldScript.remove();
@@ -57,19 +55,16 @@ function loadDataJSONP() {
     document.body.appendChild(script);
 }
 
-// 輔助函式：文字正規化
 function cleanStr(val) {
-    return String(val || "").replace(/[\s\r\n\t]/g, '').toLowerCase();
+    return String(val || "").replace(/[\s\r\n\t\(\)]/g, '').toLowerCase();
 }
 
-// 萬能欄位抓取器：解決試算表欄位名稱有空格或換行問題
 function getVal(item, candidates) {
     for (let c of candidates) {
         if (item[c] !== undefined && item[c] !== null && String(item[c]).trim() !== "") {
             return String(item[c]).trim();
         }
     }
-    // 模糊鍵名比對
     const keys = Object.keys(item);
     for (let c of candidates) {
         const matchedKey = keys.find(k => cleanStr(k).includes(cleanStr(c)));
@@ -80,7 +75,6 @@ function getVal(item, candidates) {
     return "--";
 }
 
-// 3. 智慧模糊查詢（具備公母自動跨表偵測）
 function performSearch() {
     if (!isDataLoaded) {
         alert("資料仍在同步中，請稍候再試！");
@@ -98,26 +92,24 @@ function performSearch() {
         return;
     }
 
-    // 先在選取的類別找
     let activeCat = selectedCat;
     let dataset = (activeCat === 'sow') ? rawSows : rawBoars;
 
     let matches = dataset.filter(item => {
-        const tag = cleanStr(getVal(item, ["母豬耳號", "Ear Number", "Tag ID", "Boar Ear Tag", "tag"]));
+        const tag = cleanStr(getVal(item, ["Tag ID", "Boar Ear Tag", "母豬耳號", "Ear Number", "Nombor Telinga"]));
         return tag.includes(query);
     });
 
-    // 關鍵亮點：如果當前類別找不到，自動跨表搜尋另一邊！
+    // 跨表自動搜尋
     if (matches.length === 0) {
         const otherCat = (selectedCat === 'sow') ? 'boar' : 'sow';
         const otherDataset = (otherCat === 'sow') ? rawSows : rawBoars;
         const otherMatches = otherDataset.filter(item => {
-            const tag = cleanStr(getVal(item, ["母豬耳號", "Ear Number", "Tag ID", "Boar Ear Tag", "tag"]));
+            const tag = cleanStr(getVal(item, ["Tag ID", "Boar Ear Tag", "母豬耳號", "Ear Number", "Nombor Telinga"]));
             return tag.includes(query);
         });
 
         if (otherMatches.length > 0) {
-            // 自動切換公母類別
             activeCat = otherCat;
             dataset = otherDataset;
             matches = otherMatches;
@@ -131,8 +123,8 @@ function performSearch() {
         document.getElementById('metricBoxesRow').innerHTML = `
             <div class="col-12 text-center py-4 text-muted">
                 <i class="fas fa-exclamation-triangle text-warning me-2 fs-5"></i>
-                No records found matching "<strong>${query}</strong>" in both Sows and Boars.<br>
-                <span class="sub-lang">Tiada rekod dijumpai | 在母豬與公豬資料庫中皆查無相符耳號。</span>
+                No records found matching "<strong>${query}</strong>".<br>
+                <span class="sub-lang">Tiada rekod dijumpai | 查無相符的耳號資料。</span>
             </div>`;
         const badge = document.getElementById('resultBadge');
         badge.className = "badge bg-secondary px-3 py-2 fs-6";
@@ -140,13 +132,12 @@ function performSearch() {
         return;
     }
 
-    // 多筆吻合結果生成點選標籤
     if (candidateBtns) {
         candidateBtns.innerHTML = "";
         if (matches.length > 1) {
             fuzzyBox.classList.remove('d-none');
             matches.slice(0, 15).forEach((item, idx) => {
-                const t = getVal(item, ["母豬耳號", "Ear Number", "Tag ID", "Boar Ear Tag"]);
+                const t = getVal(item, ["Tag ID", "Boar Ear Tag", "母豬耳號", "Ear Number"]);
                 const btn = document.createElement('button');
                 btn.className = `btn btn-sm ${idx === 0 ? 'btn-primary' : 'btn-outline-primary'} fw-bold`;
                 btn.innerText = t;
@@ -165,7 +156,6 @@ function performSearch() {
     renderProfileCard(activeCat, matches[0]);
 }
 
-// 4. 數值卡片呈現
 function renderProfileCard(cat, item) {
     const container = document.getElementById('individualResultContainer');
     const rowBox = document.getElementById('metricBoxesRow');
@@ -174,21 +164,20 @@ function renderProfileCard(cat, item) {
     container.style.display = "block";
     rowBox.innerHTML = "";
 
-    const rawGrade = getVal(item, ["等級", "Grade", "grade"]);
+    const rawGrade = getVal(item, ["Grade", "等級"]);
     const grade = rawGrade !== "--" ? rawGrade.charAt(0).toUpperCase() : "B";
     badge.className = `badge badge-grade-${grade} px-3 py-2 fs-6`;
 
     if (cat === 'sow') {
         badge.innerText = `Grade ${grade} Sow / Gred ${grade} Induk / ${grade} 級母豬`;
 
-        const tag = getVal(item, ["母豬耳號", "Ear Number", "Tag ID"]);
-        const breed = getVal(item, ["親代品系 1", "Breed", "品系"]);
-        const parity = getVal(item, ["胎次", "Parity"]);
+        const tag = getVal(item, ["母豬耳號", "Ear Number", "Tag ID", "Nombor Telinga"]);
+        const breed = getVal(item, ["親代品系 1", "Breed", "Baka"]);
+        const parity = getVal(item, ["胎次", "Parity", "Pariti"]);
         const spi = getVal(item, ["計算 SPI", "SPI"]);
         const ggp = getVal(item, ["GGP選拔指數", "GGP"]);
         const psy = getVal(item, ["PSY", "每頭母豬每年離乳豬數"]);
 
-        // 第四胎以上純種留種判定
         const isPure = !tag.toUpperCase().includes("LY") && !breed.toUpperCase().includes("LY");
         const pNum = parseInt(parity) || 0;
         let adviceHtml = "";
@@ -217,8 +206,8 @@ function renderProfileCard(cat, item) {
     } else {
         badge.innerText = `Grade ${grade} Boar / Gred ${grade} Jantan / ${grade} 級公豬`;
 
-        const tag = getVal(item, ["Tag ID", "Boar Ear Tag", "公豬耳號"]);
-        const breed = getVal(item, ["Breed", "品種", "品系"]);
+        const tag = getVal(item, ["Tag ID", "Boar Ear Tag", "耳號"]);
+        const breed = getVal(item, ["Breed", "品種"]);
         const score = getVal(item, ["Score", "評分"]);
         const strategy = getVal(item, ["Strategy", "策略"]);
         const tso = getVal(item, ["TSO", "總精子量"]);
@@ -233,7 +222,7 @@ function renderProfileCard(cat, item) {
     }
 }
 
-// 5. 圖檔生成與下載（多重品系寬鬆比對）
+// 圖檔生成
 document.getElementById('downloadImageBtn').addEventListener('click', () => {
     if (!isDataLoaded) {
         alert("資料載入中，請稍候！");
@@ -254,12 +243,10 @@ document.getElementById('downloadImageBtn').addEventListener('click', () => {
     if (chkD) selectedBreeds.push('D');
     if (chkLY) selectedBreeds.push('LY');
 
-    // 寬鬆品系比對輔助
     function isBreedMatch(breedStr, tagStr) {
         if (selectedBreeds.length === 0) return true;
         const b = cleanStr(breedStr);
         const t = cleanStr(tagStr);
-
         for (let sel of selectedBreeds) {
             if (sel === 'LY' && (b.includes('ly') || t.startsWith('ly'))) return true;
             if (sel === 'D' && (b.includes('duroc') || b === 'd' || t.startsWith('d'))) return true;
@@ -279,10 +266,7 @@ document.getElementById('downloadImageBtn').addEventListener('click', () => {
         const spi = getVal(i, ["計算 SPI", "SPI"]);
         const parity = getVal(i, ["胎次", "Parity"]);
 
-        const matchG = !gradeFilter || g === gradeFilter;
-        const matchB = isBreedMatch(b, tag);
-
-        if (matchG && matchB && tag !== "--") {
+        if ((!gradeFilter || g === gradeFilter) && isBreedMatch(b, tag) && tag !== "--") {
             exportList.push({ type: "Sow (母豬)", grade: g, tag: tag, breed: b, metric: `Parity: ${parity} | SPI: ${spi}` });
         }
     });
@@ -295,16 +279,13 @@ document.getElementById('downloadImageBtn').addEventListener('click', () => {
         const score = getVal(i, ["Score", "評分"]);
         const tso = getVal(i, ["TSO", "總精子量"]);
 
-        const matchG = !gradeFilter || g === gradeFilter;
-        const matchB = isBreedMatch(b, tag);
-
-        if (matchG && matchB && tag !== "--") {
+        if ((!gradeFilter || g === gradeFilter) && isBreedMatch(b, tag) && tag !== "--") {
             exportList.push({ type: "Boar (公豬)", grade: g, tag: tag, breed: b, metric: `Score: ${score} | TSO: ${tso}` });
         }
     });
 
     if (exportList.length === 0) {
-        alert("沒有符合所選條件的資料！請嘗試勾選更多品種或切換為全部等級。");
+        alert("沒有符合所選條件的資料！");
         return;
     }
 
@@ -397,7 +378,6 @@ document.getElementById('downloadImageBtn').addEventListener('click', () => {
     link.click();
 });
 
-// 6. 查詢觸發
 document.getElementById('executeSearchBtn').addEventListener('click', performSearch);
 document.getElementById('searchTagInput').addEventListener('keyup', e => {
     if (e.key === 'Enter') performSearch();
