@@ -4,78 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GLA Swine Breeding & Selection System</title>
-    <!-- Bootstrap 5 & FontAwesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --primary: #0f172a;
-            --secondary: #1e293b;
-            --accent: #2563eb;
-            --grade-a: #10b981;
-            --grade-b: #f59e0b;
-            --grade-c: #ef4444;
-            --bg: #f8fafc;
-        }
-        body { background-color: var(--bg); color: #334155; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-        .navbar { background-color: var(--primary); border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .card { border: none; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border-radius: 0.85rem; }
-        .badge-grade-A { background-color: var(--grade-a); color: white; }
-        .badge-grade-B { background-color: var(--grade-b); color: white; }
-        .badge-grade-C { background-color: var(--grade-c); color: white; }
-
-        /* 多語系次要字體排版設定 (英文為主，馬來文與中文為輔且字體較小) */
-        .sub-lang {
-            display: block;
-            font-size: 0.72rem;
-            color: #64748b;
-            font-weight: 400;
-            line-height: 1.2;
-            margin-top: 1px;
-        }
-        .sub-lang-bm {
-            font-style: italic;
-            color: #94a3b8;
-        }
-
-        .metric-box {
-            background: #f1f5f9;
-            border-radius: 0.5rem;
-            padding: 1.1rem;
-            text-align: center;
-            border: 1px solid #e2e8f0;
-        }
-        .metric-value {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-        .metric-label {
-            font-size: 0.8rem;
-            color: #475569;
-            font-weight: 600;
-        }
-
-        #authOverlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            z-index: 9999; display: flex; align-items: center; justify-content: center;
-        }
-        .auth-card { width: 100%; max-width: 420px; padding: 2.5rem; border-radius: 1rem; background: #ffffff; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- 密碼驗證畫面 -->
+    <!-- 密碼驗證層 -->
     <div id="authOverlay">
         <div class="auth-card text-center">
             <div class="mb-3 text-primary"><i class="fas fa-user-lock fs-1"></i></div>
             <h4 class="fw-bold mb-1">System Access Verification</h4>
             <span class="sub-lang sub-lang-bm mb-1">Pengesahan Akses Sistem | 系统授权访问</span>
             <p class="text-muted small mb-4">Please enter your password to access breeding records.</p>
-            
             <div class="mb-3 text-start">
                 <input type="password" id="inputPassword" class="form-control form-control-lg text-center" placeholder="Password (yang)" autofocus>
                 <div class="text-danger small mt-2 d-none" id="authErrorMsg">
@@ -110,8 +52,7 @@
         </nav>
 
         <div class="container-fluid px-4 mb-5">
-            
-            <!-- 模式一：單隻個體耳號精準查詢與數值方框卡片 -->
+            <!-- 模式一：個體數值查詢卡片 -->
             <div class="card p-4 mb-4 shadow-sm">
                 <h5 class="fw-bold mb-3 text-primary">
                     Individual Tag Profile Search
@@ -119,20 +60,14 @@
                 </h5>
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label fw-bold text-secondary">
-                            Category / Sex
-                            <span class="sub-lang">Kategori | 公母選擇</span>
-                        </label>
+                        <label class="form-label fw-bold text-secondary">Category / Sex <span class="sub-lang">Kategori | 公母選擇</span></label>
                         <select id="searchCategory" class="form-select form-select-lg">
                             <option value="sow">Sow Grade (母豬)</option>
                             <option value="boar">Boar Grade (公豬)</option>
                         </select>
                     </div>
                     <div class="col-md-5">
-                        <label class="form-label fw-bold text-secondary">
-                            Ear Tag Number
-                            <span class="sub-lang">Nombor Telinga <span class="sub-lang-bm">| 输入耳号</span></span>
-                        </label>
+                        <label class="form-label fw-bold text-secondary">Ear Tag Number <span class="sub-lang">Nombor Telinga <span class="sub-lang-bm">| 输入耳号</span></span></label>
                         <input type="text" id="searchTagInput" class="form-control form-control-lg" placeholder="e.g. Y1336, D1408, L1422...">
                     </div>
                     <div class="col-md-4">
@@ -142,22 +77,16 @@
                     </div>
                 </div>
 
-                <!-- 單隻個體詳細數值呈現卡片 -->
                 <div id="individualResultContainer" class="mt-4 pt-3 border-top" style="display: none;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-bold text-dark mb-0">
-                            Performance Profile Card
-                            <span class="sub-lang">Kad Profil Prestasi <span class="sub-lang-bm">| 性能数据卡片</span></span>
-                        </h6>
+                        <h6 class="fw-bold text-dark mb-0">Performance Profile Card <span class="sub-lang">Kad Profil Prestasi</span></h6>
                         <span id="resultBadge" class="badge px-3 py-2 fs-6">Grade</span>
                     </div>
-                    <div class="row g-3" id="metricBoxesRow">
-                        <!-- 動態填入數值方框 -->
-                    </div>
+                    <div class="row g-3" id="metricBoxesRow"></div>
                 </div>
             </div>
 
-            <!-- 模式二：多條件篩選與整批資料下載區塊 -->
+            <!-- 模式二：批次篩選與報表下載 -->
             <div class="card p-4 mb-4 bg-light border">
                 <h5 class="fw-bold mb-3 text-dark">
                     Batch Filter & Report Download
@@ -165,10 +94,7 @@
                 </h5>
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label fw-bold text-secondary">
-                            Grade Filter
-                            <span class="sub-lang">Penapis Gred <span class="sub-lang-bm">| 等级筛选</span></span>
-                        </label>
+                        <label class="form-label fw-bold text-secondary">Grade Filter <span class="sub-lang">Penapis Gred</span></label>
                         <select id="filterGrade" class="form-select">
                             <option value="">All Grades (全部等级)</option>
                             <option value="A">Grade A (Elite)</option>
@@ -177,10 +103,7 @@
                         </select>
                     </div>
                     <div class="col-md-5">
-                        <label class="form-label fw-bold text-secondary">
-                            Breed Selection (Multiple Choice)
-                            <span class="sub-lang">Pilihan Baka <span class="sub-lang-bm">| 品种复选</span></span>
-                        </label>
+                        <label class="form-label fw-bold text-secondary">Breed Selection <span class="sub-lang">Pilihan Baka</span></label>
                         <div class="d-flex gap-3 pt-2 bg-white p-2 rounded border">
                             <div class="form-check"><input class="form-check-input batch-chk" type="checkbox" value="L" id="chkL" checked><label class="form-check-label fw-bold" for="chkL">L</label></div>
                             <div class="form-check"><input class="form-check-input batch-chk" type="checkbox" value="Y" id="chkY" checked><label class="form-check-label fw-bold" for="chkY">Y</label></div>
@@ -190,254 +113,39 @@
                     </div>
                     <div class="col-md-4">
                         <button class="btn btn-success btn-lg w-100 fw-bold shadow-sm" id="downloadReportBtn">
-                            <i class="fas fa-file-download me-1"></i> Download Filtered CSV Report
-                            <span class="sub-lang" style="color: #e2e8f0;">Muat turun data CSV | 下载筛选后CSV报表</span>
+                            <i class="fas fa-file-download me-1"></i> Download Filtered Report (CSV)
+                            <span class="sub-lang" style="color: #e2e8f0;">Muat turun data CSV | 下载筛选后报表</span>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- 查詢結果總表 -->
+            <!-- 總表清單 -->
             <div class="card">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="mb-0 fw-bold">
-                            Complete Master Records
-                            <span class="sub-lang">Rekod Induk Lengkap <span class="sub-lang-bm">| 试算表完整资料清单</span></span>
-                        </h5>
-                    </div>
+                    <h5 class="mb-0 fw-bold">Complete Master Records <span class="sub-lang">Rekod Induk Lengkap</span></h5>
                     <span class="badge bg-secondary" id="totalCount">0 Records</span>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0 text-center">
                         <thead class="table-light">
                             <tr>
-                                <th>Category <span class="sub-lang">Kategori | 类别</span></th>
-                                <th>Grade <span class="sub-lang">Gred | 等级</span></th>
-                                <th>Ear Tag <span class="sub-lang">No. Telinga | 耳号</span></th>
-                                <th>Breed <span class="sub-lang">Baka | 品种</span></th>
-                                <th>Key Metrics / Status <span class="sub-lang">Metrik Utama | 核心指数</span></th>
+                                <th>Category <span class="sub-lang">Kategori</span></th>
+                                <th>Grade <span class="sub-lang">Gred</span></th>
+                                <th>Ear Tag <span class="sub-lang">No. Telinga</span></th>
+                                <th>Breed <span class="sub-lang">Baka</span></th>
+                                <th>Key Metrics <span class="sub-lang">Metrik Utama</span></th>
                             </tr>
                         </thead>
                         <tbody id="dataTableBody">
-                            <tr><td colspan="5" class="text-center py-4 text-muted">Loading data... / 数据载入中...</td></tr>
+                            <tr><td colspan="5" class="text-center py-4 text-muted">Loading data...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <script>
-        const SYSTEM_KEY = "yang";
-        const API_URL = "https://script.google.com/macros/s/AKfycbzvpVM9rwy9eC3hUUiP7oIpYa_YNsotLJ5pW8A-c9jG_3eQ5BlLmeV9bQCkB-sH_c4wPA/exec";
-        
-        let rawSows = [];
-        let rawBoars = [];
-
-        function verifyPassword() {
-            if (document.getElementById('inputPassword').value.trim() === SYSTEM_KEY) {
-                sessionStorage.setItem("gla_auth", "ok");
-                document.getElementById('authOverlay').style.display = "none";
-                document.getElementById('mainApp').style.display = "block";
-                loadData();
-            } else {
-                document.getElementById('authErrorMsg').classList.remove('d-none');
-            }
-        }
-
-        document.getElementById('authSubmitBtn').addEventListener('click', verifyPassword);
-        document.getElementById('inputPassword').addEventListener('keyup', e => { if (e.key === 'Enter') verifyPassword(); });
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            sessionStorage.removeItem("gla_auth");
-            location.reload();
-        });
-
-        async function loadData() {
-            try {
-                const res = await fetch(API_URL);
-                const data = await res.json();
-                rawSows = data.sows || [];
-                rawBoars = data.boars || [];
-                document.getElementById('syncStatus').innerText = "Live Connected";
-                renderTable();
-            } catch (e) {
-                document.getElementById('syncStatus').innerText = "Connection Failed";
-            }
-        }
-
-        // 模式一：查詢個體數值卡片
-        document.getElementById('executeSearchBtn').addEventListener('click', () => {
-            const cat = document.getElementById('searchCategory').value;
-            const tagQuery = document.getElementById('searchTagInput').value.trim().toLowerCase();
-            const container = document.getElementById('individualResultContainer');
-            const rowBox = document.getElementById('metricBoxesRow');
-            const badge = document.getElementById('resultBadge');
-
-            if (!tagQuery) {
-                alert("Please enter an ear tag number! / 请先输入要查询的耳号！");
-                return;
-            }
-
-            container.style.display = "block";
-            rowBox.innerHTML = "";
-
-            if (cat === 'sow') {
-                const found = rawSows.find(i => {
-                    const t = String(i["母豬耳號"] || i["Ear Number"] || i["Tag ID"] || "").toLowerCase();
-                    return t.includes(tagQuery);
-                });
-
-                if (!found) {
-                    rowBox.innerHTML = `<div class="col-12 text-muted py-3">No record found for this sow tag. / 找不到此母猪耳号的资料。</div>`;
-                    badge.className = "badge bg-secondary px-3 py-2 fs-6";
-                    badge.innerText = "Not Found";
-                    return;
-                }
-
-                const grade = (found["等級"] || found["Grade"] || "B").toUpperCase().charAt(0);
-                badge.className = `badge badge-grade-${grade} px-3 py-2 fs-6`;
-                badge.innerText = `Grade ${grade} Sow`;
-
-                const tag = found["母豬耳號"] || found["Ear Number"] || "--";
-                const breed = found["親代品系 1"] || found["Breed"] || "--";
-                const parity = found["胎次"] || found["Parity"] || "--";
-                const spi = found["計算 SPI"] || found["SPI"] || "--";
-                const ggp = found["GGP選拔指數"] || found["GGP"] || "--";
-                const psy = found["PSY (Pigs per sow per year每頭母豬每年離乳豬數 ("] || found["PSY"] || "--";
-
-                rowBox.innerHTML = `
-                    <div class="col-md-3"><div class="metric-box"><div class="metric-label">Ear Tag <span class="sub-lang">No. Telinga | 耳号</span></div><div class="metric-value text-primary">${tag}</div></div></div>
-                    <div class="col-md-3"><div class="metric-box"><div class="metric-label">Breed <span class="sub-lang">Baka | 品种</span></div><div class="metric-value">${breed}</div></div></div>
-                    <div class="col-md-3"><div class="metric-box"><div class="metric-label">Parity <span class="sub-lang">Pariti | 胎次</span></div><div class="metric-value">P ${parity}</div></div></div>
-                    <div class="col-md-3"><div class="metric-box"><div class="metric-label">Calculated SPI <span class="sub-lang">Indeks SPI | SPI 指数</span></div><div class="metric-value text-success">${spi}</div></div></div>
-                    <div class="col-md-6"><div class="metric-box"><div class="metric-label">GGP Index <span class="sub-lang">Indeks GGP | GGP 选择指数</span></div><div class="metric-value">${ggp}</div></div></div>
-                    <div class="col-md-6"><div class="metric-box"><div class="metric-label">PSY <span class="sub-lang">Anak Cerai/Induk/Tahun | 年离乳数</span></div><div class="metric-value">${psy}</div></div></div>
-                `;
-
-            } else {
-                const found = rawBoars.find(i => {
-                    const t = String(i["Tag ID"] || i["Boar Ear Tag"] || "").toLowerCase();
-                    return t.includes(tagQuery);
-                });
-
-                if (!found) {
-                    rowBox.innerHTML = `<div class="col-12 text-muted py-3">No record found for this boar tag. / 找不到此公猪耳号的资料。</div>`;
-                    badge.className = "badge bg-secondary px-3 py-2 fs-6";
-                    badge.innerText = "Not Found";
-                    return;
-                }
-
-                const grade = (found["Grade"] || found["等級"] || "B").toUpperCase().charAt(0);
-                badge.className = `badge badge-grade-${grade} px-3 py-2 fs-6`;
-                badge.innerText = `Grade ${grade} Boar`;
-
-                const tag = found["Tag ID"] || found["Boar Ear Tag"] || "--";
-                const breed = found["Breed"] || "--";
-                const score = found["Score"] || "--";
-                const strategy = found["Strategy"] || "--";
-                const tso = found["TSO"] || "--";
-
-                rowBox.innerHTML = `
-                    <div class="col-md-4"><div class="metric-box"><div class="metric-label">Boar Tag <span class="sub-lang">No. Telinga | 公猪耳号</span></div><div class="metric-value text-primary">${tag}</div></div></div>
-                    <div class="col-md-4"><div class="metric-box"><div class="metric-label">Breed <span class="sub-lang">Baka | 品种</span></div><div class="metric-value">${breed}</div></div></div>
-                    <div class="col-md-4"><div class="metric-box"><div class="metric-label">Strategy <span class="sub-lang">Strategi | 策略</span></div><div class="metric-value">${strategy}</div></div></div>
-                    <div class="col-md-6"><div class="metric-box"><div class="metric-label">Score <span class="sub-lang">Skor | 评分</span></div><div class="metric-value text-success">${score}</div></div></div>
-                    <div class="col-md-6"><div class="metric-box"><div class="metric-label">TSO (Total Sperm Output) <span class="sub-lang">Jumlah Mani | 总精子量</span></div><div class="metric-value">${tso}</div></div></div>
-                `;
-            }
-        });
-
-        // 渲染下方總表
-        function renderTable() {
-            const tbody = document.getElementById('dataTableBody');
-            tbody.innerHTML = "";
-            
-            let allRows = [];
-            rawSows.forEach(i => allRows.push({ type: 'Sow (母猪)', item: i }));
-            rawBoars.forEach(i => allRows.push({ type: 'Boar (公猪)', item: i }));
-
-            document.getElementById('totalCount').innerText = allRows.length + " Records";
-            
-            allRows.slice(0, 50).forEach(r => {
-                const isSow = r.type.includes('Sow');
-                const tag = isSow ? (r.item["母豬耳號"] || r.item["Ear Number"] || "--") : (r.item["Tag ID"] || r.item["Boar Ear Tag"] || "--");
-                const breed = isSow ? (r.item["親代品系 1"] || r.item["Breed"] || "--") : (r.item["Breed"] || "--");
-                const grade = (r.item["等級"] || r.item["Grade"] || "B").toUpperCase().charAt(0);
-                const info = isSow ? `Parity: ${r.item["胎次"]||1} | SPI: ${r.item["計算 SPI"]||"--"}` : `Score: ${r.item["Score"]||"--"} | TSO: ${r.item["TSO"]||"--"}`;
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td><span class="badge bg-dark">${r.type}</span></td>
-                        <td><span class="badge badge-grade-${grade}">${grade}</span></td>
-                        <td class="fw-bold">${tag}</td>
-                        <td>${breed}</td>
-                        <td>${info}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        // 批次下載按鈕
-        document.getElementById('downloadReportBtn').addEventListener('click', () => {
-            const gradeFilter = document.getElementById('filterGrade').value.toUpperCase();
-            const chkL = document.getElementById('chkL').checked;
-            const chkY = document.getElementById('chkY').checked;
-            const chkD = document.getElementById('chkD').checked;
-            const chkLY = document.getElementById('chkLY').checked;
-
-            let selectedBreeds = [];
-            if (chkL) selectedBreeds.push('L');
-            if (chkY) selectedBreeds.push('Y');
-            if (chkD) selectedBreeds.push('D');
-            if (chkLY) selectedBreeds.push('LY');
-
-            let csvContent = "\uFEFFCategory,Grade,EarTag,Breed,Metrics\n";
-
-            rawSows.forEach(i => {
-                const grade = (i["等級"] || i["Grade"] || "B").toUpperCase().charAt(0);
-                const breed = String(i["親代品系 1"] || i["Breed"] || "").toUpperCase();
-                const tag = i["母豬耳號"] || i["Ear Number"] || "";
-
-                const matchGrade = !gradeFilter || grade === gradeFilter;
-                const matchBreed = selectedBreeds.length === 0 || selectedBreeds.some(b => breed.includes(b));
-
-                if (matchGrade && matchBreed) {
-                    csvContent += `"Sow","${grade}","${tag}","${breed}","SPI: ${i["計算 SPI"]||""}"\n`;
-                }
-            });
-
-            rawBoars.forEach(i => {
-                const grade = (i["Grade"] || i["等級"] || "B").toUpperCase().charAt(0);
-                const breed = String(i["Breed"] || "").toUpperCase();
-                const tag = i["Tag ID"] || i["Boar Ear Tag"] || "";
-
-                const matchGrade = !gradeFilter || grade === gradeFilter;
-                const matchBreed = selectedBreeds.length === 0 || selectedBreeds.some(b => breed.includes(b));
-
-                if (matchGrade && matchBreed) {
-                    csvContent += `"Boar","${grade}","${tag}","${breed}","Score: ${i["Score"]||""}, TSO: ${i["TSO"]||""}"\n`;
-                }
-            });
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', `GLA_Breeding_Report_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        });
-
-        window.addEventListener('DOMContentLoaded', () => {
-            if (sessionStorage.getItem("gla_auth") === "ok") {
-                document.getElementById('authOverlay').style.display = "none";
-                document.getElementById('mainApp').style.display = "block";
-                loadData();
-            }
-        });
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
