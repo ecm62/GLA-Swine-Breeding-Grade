@@ -27,7 +27,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
     location.reload();
 });
 
-// 2. 使用 JSONP 動態腳本載入，免疫瀏覽器 CORS 跨域限制
+// 2. 透過 JSONP 注入動態腳本，徹底解決跨域與 302 重新導向問題
 function loadDataJSONP() {
     const statusDot = document.getElementById('statusDot');
     const syncStatus = document.getElementById('syncStatus');
@@ -35,7 +35,7 @@ function loadDataJSONP() {
     statusDot.className = "fas fa-circle text-warning me-1";
     syncStatus.innerText = "Connecting Google Sheets...";
 
-    // 建立全域回呼函式
+    // 定義全域回呼函式接收數據
     window.handleSheetData = function(data) {
         rawSows = data.sows || [];
         rawBoars = data.boars || [];
@@ -48,19 +48,19 @@ function loadDataJSONP() {
         if (oldScript) oldScript.remove();
     };
 
-    // 動態插入 script 標籤載入資料
+    // 動態載入 Script
     const script = document.createElement('script');
     script.id = 'gasJsonpScript';
     script.src = `${API_URL}?callback=handleSheetData&_t=${Date.now()}`;
     script.onerror = function() {
         statusDot.className = "fas fa-circle text-danger me-1";
         syncStatus.innerText = "Connection Failed";
-        alert("連線失敗！請確認 Google Apps Script 已部署為「新版本」且權限為「任何人」。");
+        alert("連線失敗！請確認 Google Apps Script 已部署為「新版本」且權限為「所有人」。");
     };
     document.body.appendChild(script);
 }
 
-// 輔助函式：標準化字串以進行模糊比對
+// 輔助函式：去除空白與轉小寫
 function cleanStr(val) {
     return String(val || "").replace(/\s+/g, '').toLowerCase();
 }
@@ -152,6 +152,7 @@ function renderProfileCard(cat, item) {
         const ggp = item["GGP選拔指數"] || item["GGP"] || "--";
         const psy = item["PSY (Pigs per sow per year每頭母豬每年離乳豬數 ("] || item["PSY"] || "--";
 
+        // 第四胎以上純種留種判定（排除 LY）
         const isPure = !String(tag).toUpperCase().includes("LY") && !String(breed).toUpperCase().includes("LY");
         const pNum = parseInt(parity) || 0;
         let adviceHtml = "";
