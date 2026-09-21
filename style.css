@@ -1,0 +1,26 @@
+:root {
+    --primary: #0f172a;
+    --secondary: #1e293b;
+    --accent: #2563eb;
+    --grade-a: #10b981;
+    --grade-b: #f59e0b;
+    --grade-c: #ef4444;
+    --bg: #f8fafc;
+}
+body { background-color: var(--bg); color: #334155; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+.navbar { background-color: var(--primary); border-bottom: 1px solid rgba(255,255,255,0.1); }
+.card { border: none; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border-radius: 0.85rem; }
+.badge-grade-A { background-color: var(--grade-a); color: white; }
+.badge-grade-B { background-color: var(--grade-b); color: white; }
+.badge-grade-C { background-color: var(--grade-c); color: white; }
+.sub-lang { display: block; font-size: 0.72rem; color: #64748b; font-weight: 400; line-height: 1.2; }
+.sub-lang-bm { font-style: italic; color: #94a3b8; }
+.metric-box { background: #f1f5f9; border-radius: 0.5rem; padding: 1.1rem; text-align: center; border: 1px solid #e2e8f0; }
+.metric-value { font-size: 1.6rem; font-weight: 700; color: var(--primary); }
+.metric-label { font-size: 0.8rem; color: #475569; font-weight: 600; }
+#authOverlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    z-index: 9999; display: flex; align-items: center; justify-content: center;
+}
+.auth-card { width: 100%; max-width: 420px; padding: 2.5rem; border-radius: 1rem; background: #ffffff; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); }
