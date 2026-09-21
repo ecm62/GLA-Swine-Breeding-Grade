@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GLA Swine Breeding & Selection System</title>
+    <!-- Bootstrap 5 & FontAwesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -11,20 +12,20 @@
 </head>
 <body>
 
-    <!-- 密碼驗證層 -->
+    <!-- 密碼驗證畫面 -->
     <div id="authOverlay">
         <div class="auth-card text-center">
             <div class="mb-3 text-primary"><i class="fas fa-user-lock fs-1"></i></div>
             <h4 class="fw-bold mb-1">System Access Verification</h4>
-            <span class="sub-lang sub-lang-bm mb-1">Pengesahan Akses Sistem | 系统授权访问</span>
+            <span class="sub-lang sub-lang-bm mb-1">Pengesahan Akses Sistem | 系統授權訪問</span>
             <p class="text-muted small mb-4">Please enter your password to access breeding records.</p>
             <div class="mb-3 text-start">
                 <input type="password" id="inputPassword" class="form-control form-control-lg text-center" placeholder="Password (yang)" autofocus>
                 <div class="text-danger small mt-2 d-none" id="authErrorMsg">
-                    <i class="fas fa-exclamation-circle me-1"></i>Incorrect password! / Kata laluan salah!
+                    <i class="fas fa-exclamation-circle me-1"></i>Incorrect password! / Kata laluan salah! / 密碼錯誤！
                 </div>
             </div>
-            <button class="btn btn-primary btn-lg w-100 fw-bold" id="authSubmitBtn">Access System / 确认进入</button>
+            <button class="btn btn-primary btn-lg w-100 fw-bold" id="authSubmitBtn">Access System / 確認進入</button>
         </div>
     </div>
 
@@ -43,55 +44,125 @@
                 </a>
                 <div class="d-flex align-items-center">
                     <div class="navbar-text text-light small d-none d-md-block text-end me-3">
-                        <div><i class="fas fa-circle text-warning me-1" id="statusDot"></i><span id="syncStatus">Secure Connected</span></div>
-                        <span class="sub-lang" style="color: #cbd5e1;">Strictly Confidential Query Only</span>
+                        <div><i class="fas fa-circle text-warning me-1" id="statusDot"></i><span id="syncStatus">Initializing...</span></div>
+                        <span class="sub-lang" style="color: #cbd5e1;">Google Sheets Live Sync</span>
                     </div>
-                    <button class="btn btn-sm btn-outline-light" id="logoutBtn"><i class="fas fa-sign-out-alt me-1"></i>Lock</button>
+                    <button class="btn btn-sm btn-outline-light" id="logoutBtn"><i class="fas fa-sign-out-alt me-1"></i>Lock / 鎖定</button>
                 </div>
             </div>
         </nav>
 
-        <div class="container px-4 mb-5" style="max-width: 900px;">
-            <!-- 個體數值查詢專用面板 -->
+        <div class="container px-4 mb-5" style="max-width: 980px;">
+            
+            <!-- 區塊一：耳號模糊查詢與數值卡片 -->
             <div class="card p-4 mb-4 shadow-sm border-start border-primary border-4">
                 <h5 class="fw-bold mb-3 text-primary">
-                    Individual Tag Profile Secure Search
-                    <span class="sub-lang">Carian Profil Keselamatan Nombor Telinga <span class="sub-lang-bm">| 个体耳号安全查询与数值呈现</span></span>
+                    Individual Tag Profile Search (Fuzzy Matching)
+                    <span class="sub-lang">Carian Profil Nombor Telinga (Padanan Kabur) <span class="sub-lang-bm">| 個體耳號模糊比對查詢與數值呈現</span></span>
                 </h5>
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label fw-bold text-secondary">Category / Sex <span class="sub-lang">Kategori | 公母選擇</span></label>
+                        <label class="form-label fw-bold text-secondary">
+                            Category / Sex
+                            <span class="sub-lang">Kategori | 公母選擇</span>
+                        </label>
                         <select id="searchCategory" class="form-select form-select-lg">
                             <option value="sow">Sow Grade (母豬)</option>
                             <option value="boar">Boar Grade (公豬)</option>
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-bold text-secondary">Ear Tag Number <span class="sub-lang">Nombor Telinga <span class="sub-lang-bm">| 输入耳号查询</span></span></label>
-                        <input type="text" id="searchTagInput" class="form-control form-control-lg" placeholder="e.g. Y1336, D1408, L1422...">
+                        <label class="form-label fw-bold text-secondary">
+                            Ear Tag Search Keyword
+                            <span class="sub-lang">Kata Kunci No. Telinga (cth. 1400) <span class="sub-lang-bm">| 耳號關鍵字 (例如: 1400, Y13)</span></span>
+                        </label>
+                        <input type="text" id="searchTagInput" class="form-control form-control-lg" placeholder="Enter tag or partial number (e.g. 1400)...">
                     </div>
                     <div class="col-md-3">
                         <button class="btn btn-primary btn-lg w-100 fw-bold" id="executeSearchBtn">
-                            <i class="fas fa-search me-1"></i> Search / 查询
+                            <i class="fas fa-search me-1"></i> Search / 查詢
                         </button>
                     </div>
                 </div>
 
-                <!-- 單隻個體詳細數值方框呈現（未搜尋前完全隱藏，不佔空間） -->
+                <!-- 模糊比對多筆候選標籤 -->
+                <div id="fuzzyMatchContainer" class="mt-3 pt-2 border-top d-none">
+                    <div class="small fw-bold text-secondary mb-2">
+                        Matching Results Found (Click to select):
+                        <span class="sub-lang">Keputusan Sepadan (Klik untuk pilih) | 找到多筆相符耳號 (請點擊查看):</span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2" id="fuzzyCandidateButtons"></div>
+                </div>
+
+                <!-- 單隻個體詳細數值呈現卡片 -->
                 <div id="individualResultContainer" class="mt-4 pt-3 border-top" style="display: none;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-bold text-dark mb-0">Performance Profile Card <span class="sub-lang">Kad Profil Prestasi</span></h6>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0">Performance Profile Card</h6>
+                            <span class="sub-lang">Kad Profil Prestasi | 個體性能卡片</span>
+                        </div>
                         <span id="resultBadge" class="badge px-3 py-2 fs-6">Grade</span>
                     </div>
                     <div class="row g-3" id="metricBoxesRow"></div>
                 </div>
             </div>
 
-            <!-- 安全提示看板 -->
-            <div class="alert alert-secondary text-center small py-3" role="alert">
-                <i class="fas fa-shield-alt me-1"></i> <strong>Confidentiality Notice:</strong> This system is configured for secure individual lookup only. Raw data export and batch file downloading have been permanently disabled to protect proprietary breeding assets.
-                <span class="d-block text-muted" style="font-size:0.68rem;">Notis Sulit: Sistem ini hanya untuk carian individu. Muat turun fail data mentah telah dilumpuhkan.</span>
+            <!-- 區塊二：篩選並生成高畫質「圖檔 (PNG)」下載 -->
+            <div class="card p-4 mb-4 bg-light border shadow-sm">
+                <h5 class="fw-bold mb-3 text-dark">
+                    Export Filtered Records as Image (PNG)
+                    <span class="sub-lang">Muat Turun Rekod Ditapis sebagai Imej <span class="sub-lang-bm">| 篩選條件並匯出高畫質圖檔 (非表格文字檔)</span></span>
+                </h5>
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-secondary">
+                            Grade Filter
+                            <span class="sub-lang">Penapis Gred | 等級篩選</span>
+                        </label>
+                        <select id="filterGrade" class="form-select">
+                            <option value="">All Grades (全部等級)</option>
+                            <option value="A">Grade A (Elite 核心群)</option>
+                            <option value="B">Grade B (Multiplier 擴群)</option>
+                            <option value="C">Grade C (Cull 觀察/淘汰)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-secondary">
+                            Breed Selection
+                            <span class="sub-lang">Pilihan Baka | 品種複選</span>
+                        </label>
+                        <div class="d-flex gap-2 pt-1 bg-white p-2 rounded border justify-content-between">
+                            <div class="form-check"><input class="form-check-input batch-chk" type="checkbox" value="L" id="chkL" checked><label class="form-check-label fw-bold" for="chkL">L</label></div>
+                            <div class="form-check"><input class="form-check-input batch-chk" type="checkbox" value="Y" id="chkY" checked><label class="form-check-label fw-bold" for="chkY">Y</label></div>
+                            <div class="form-check"><input class="form-check-input batch-chk" type="checkbox" value="D" id="chkD" checked><label class="form-check-label fw-bold" for="chkD">D</label></div>
+                            <div class="form-check"><input class="form-check-input batch-chk" type="checkbox" value="LY" id="chkLY" checked><label class="form-check-label fw-bold" for="chkLY">LY</label></div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold text-secondary">
+                            Resolution
+                            <span class="sub-lang">Kualiti | 解析度</span>
+                        </label>
+                        <select id="imageResolution" class="form-select">
+                            <option value="1">Standard (標準)</option>
+                            <option value="2" selected>Ultra HD (2x 高清)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-success w-100 py-2 fw-bold shadow-sm" id="downloadImageBtn">
+                            <i class="fas fa-file-image me-1"></i> Generate Image
+                            <span class="sub-lang text-white-50">Jana Imej PNG | 下載分析圖檔</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="small text-muted mt-2">
+                    <i class="fas fa-shield-alt text-success me-1"></i> Security: Records are rendered directly onto an image canvas. No raw spreadsheets are exposed.
+                </div>
             </div>
+
+            <!-- 隱藏畫布 (用於在記憶體中渲染圖片) -->
+            <canvas id="exportCanvas" style="display: none;"></canvas>
+
         </div>
     </div>
 
