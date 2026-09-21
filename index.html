@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GLA 種畜等級與數據查詢系統 | Swine Grade & Breeding System</title>
+    <title>GLA Swine Breeding & Selection System</title>
     <!-- Bootstrap 5 & FontAwesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -25,24 +25,37 @@
         .badge-grade-A { background-color: var(--grade-a); color: white; }
         .badge-grade-B { background-color: var(--grade-b); color: white; }
         .badge-grade-C { background-color: var(--grade-c); color: white; }
-        .lang-sub { display: block; font-size: 0.72rem; color: #64748b; font-weight: 400; }
-        
-        /* 數值卡片樣式 */
+
+        /* 多語系次要字體排版設定 (英文為主，馬來文與中文為輔且字體較小) */
+        .sub-lang {
+            display: block;
+            font-size: 0.72rem;
+            color: #64748b;
+            font-weight: 400;
+            line-height: 1.2;
+            margin-top: 1px;
+        }
+        .sub-lang-bm {
+            font-style: italic;
+            color: #94a3b8;
+        }
+
         .metric-box {
             background: #f1f5f9;
             border-radius: 0.5rem;
-            padding: 1rem;
+            padding: 1.1rem;
             text-align: center;
             border: 1px solid #e2e8f0;
         }
         .metric-value {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 700;
             color: var(--primary);
         }
         .metric-label {
             font-size: 0.8rem;
-            color: #64748b;
+            color: #475569;
+            font-weight: 600;
         }
 
         #authOverlay {
@@ -59,15 +72,17 @@
     <div id="authOverlay">
         <div class="auth-card text-center">
             <div class="mb-3 text-primary"><i class="fas fa-user-lock fs-1"></i></div>
-            <h4 class="fw-bold mb-1">系統授權訪問</h4>
-            <div class="lang-sub mb-3">System Access Verification | Pengesahan Akses</div>
+            <h4 class="fw-bold mb-1">System Access Verification</h4>
+            <span class="sub-lang sub-lang-bm mb-1">Pengesahan Akses Sistem | 系统授权访问</span>
+            <p class="text-muted small mb-4">Please enter your password to access breeding records.</p>
+            
             <div class="mb-3 text-start">
-                <input type="password" id="inputPassword" class="form-control form-control-lg text-center" placeholder="輸入密碼 / Password (yang)" autofocus>
+                <input type="password" id="inputPassword" class="form-control form-control-lg text-center" placeholder="Password (yang)" autofocus>
                 <div class="text-danger small mt-2 d-none" id="authErrorMsg">
-                    <i class="fas fa-exclamation-circle me-1"></i>密碼錯誤！ / Kata laluan salah!
+                    <i class="fas fa-exclamation-circle me-1"></i>Incorrect password! / Kata laluan salah!
                 </div>
             </div>
-            <button class="btn btn-primary btn-lg w-100 fw-bold" id="authSubmitBtn">確認進入 / Access</button>
+            <button class="btn btn-primary btn-lg w-100 fw-bold" id="authSubmitBtn">Access System / 确认进入</button>
         </div>
     </div>
 
@@ -78,15 +93,18 @@
                 <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
                     <i class="fas fa-dna me-2 text-warning fs-4"></i>
                     <div>
-                        <div>GLA 種畜等級與數據查詢系統</div>
-                        <div style="font-size: 0.75rem; opacity: 0.85;">Swine Grade & Breeding System | Sistem Gred Babi</div>
+                        <div style="font-size: 1.05rem;">GLA Swine Breeding & Selection System</div>
+                        <div style="font-size: 0.7rem; font-weight: normal; opacity: 0.85;">
+                            Sistem Gred Babi & Pembiakan | GLA 種畜等級與留種決策系統
+                        </div>
                     </div>
                 </a>
                 <div class="d-flex align-items-center">
                     <div class="navbar-text text-light small d-none d-md-block text-end me-3">
-                        <div><i class="fas fa-circle text-warning me-1" id="statusDot"></i><span id="syncStatus">連線中...</span></div>
+                        <div><i class="fas fa-circle text-warning me-1" id="statusDot"></i><span id="syncStatus">Live Connected</span></div>
+                        <span class="sub-lang" style="color: #cbd5e1;">Google Sheets Synchronized</span>
                     </div>
-                    <button class="btn btn-sm btn-outline-light" id="logoutBtn"><i class="fas fa-sign-out-alt me-1"></i>鎖定</button>
+                    <button class="btn btn-sm btn-outline-light" id="logoutBtn"><i class="fas fa-sign-out-alt me-1"></i>Lock</button>
                 </div>
             </div>
         </nav>
@@ -95,31 +113,43 @@
             
             <!-- 模式一：單隻個體耳號精準查詢與數值方框卡片 -->
             <div class="card p-4 mb-4 shadow-sm">
-                <h5 class="fw-bold mb-3 text-primary"><i class="fas fa-search me-2"></i>個體耳號詳細數值查詢 (Individual Tag Search)</h5>
+                <h5 class="fw-bold mb-3 text-primary">
+                    Individual Tag Profile Search
+                    <span class="sub-lang">Carian Profil Nombor Telinga Individu <span class="sub-lang-bm">| 个体耳号详细数值查询</span></span>
+                </h5>
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label fw-bold text-secondary">公母選擇 / Category</label>
+                        <label class="form-label fw-bold text-secondary">
+                            Category / Sex
+                            <span class="sub-lang">Kategori | 公母選擇</span>
+                        </label>
                         <select id="searchCategory" class="form-select form-select-lg">
-                            <option value="sow">母豬 (Sow Grade)</option>
-                            <option value="boar">公豬 (Boar Grade)</option>
+                            <option value="sow">Sow Grade (母豬)</option>
+                            <option value="boar">Boar Grade (公豬)</option>
                         </select>
                     </div>
                     <div class="col-md-5">
-                        <label class="form-label fw-bold text-secondary">輸入耳號 / Enter Ear Tag</label>
-                        <input type="text" id="searchTagInput" class="form-control form-control-lg" placeholder="請輸入完整或部分耳號 (例: Y1336, D1408)...">
+                        <label class="form-label fw-bold text-secondary">
+                            Ear Tag Number
+                            <span class="sub-lang">Nombor Telinga <span class="sub-lang-bm">| 输入耳号</span></span>
+                        </label>
+                        <input type="text" id="searchTagInput" class="form-control form-control-lg" placeholder="e.g. Y1336, D1408, L1422...">
                     </div>
                     <div class="col-md-4">
                         <button class="btn btn-primary btn-lg w-100 fw-bold" id="executeSearchBtn">
-                            <i class="fas fa-arrow-right me-1"></i> 查詢個體數值
+                            <i class="fas fa-search me-1"></i> Search Profile / 查询数值
                         </button>
                     </div>
                 </div>
 
-                <!-- 單隻個體詳細數值呈現卡片 (預設隱藏，點擊查詢後出現) -->
+                <!-- 單隻個體詳細數值呈現卡片 -->
                 <div id="individualResultContainer" class="mt-4 pt-3 border-top" style="display: none;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-bold text-dark mb-0">查詢結果數據卡片 (Profile Card)</h6>
-                        <span id="resultBadge" class="badge px-3 py-2 fs-6">等級</span>
+                        <h6 class="fw-bold text-dark mb-0">
+                            Performance Profile Card
+                            <span class="sub-lang">Kad Profil Prestasi <span class="sub-lang-bm">| 性能数据卡片</span></span>
+                        </h6>
+                        <span id="resultBadge" class="badge px-3 py-2 fs-6">Grade</span>
                     </div>
                     <div class="row g-3" id="metricBoxesRow">
                         <!-- 動態填入數值方框 -->
@@ -128,30 +158,40 @@
             </div>
 
             <!-- 模式二：多條件篩選與整批資料下載區塊 -->
-            <div class="card p-4 mb-4 bg-light">
-                <h5 class="fw-bold mb-3 text-dark"><i class="fas fa-download me-2 text-success"></i>整批資料篩選與圖檔/報表下載 (Batch Filter & Download)</h5>
+            <div class="card p-4 mb-4 bg-light border">
+                <h5 class="fw-bold mb-3 text-dark">
+                    Batch Filter & Report Download
+                    <span class="sub-lang">Penapisan Kelompok & Muat Turun Laporan <span class="sub-lang-bm">| 整批资料筛选与报表下载</span></span>
+                </h5>
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label fw-bold text-secondary">等級篩選 / Grade</label>
+                        <label class="form-label fw-bold text-secondary">
+                            Grade Filter
+                            <span class="sub-lang">Penapis Gred <span class="sub-lang-bm">| 等级筛选</span></span>
+                        </label>
                         <select id="filterGrade" class="form-select">
-                            <option value="">全部等級 (All Grades)</option>
-                            <option value="A">A 級 (Elite)</option>
-                            <option value="B">B 級 (Multiplier)</option>
-                            <option value="C">C 級 (Cull)</option>
+                            <option value="">All Grades (全部等级)</option>
+                            <option value="A">Grade A (Elite)</option>
+                            <option value="B">Grade B (Multiplier)</option>
+                            <option value="C">Grade C (Cull)</option>
                         </select>
                     </div>
                     <div class="col-md-5">
-                        <label class="form-label fw-bold text-secondary">品種複選 (可勾選多個)</label>
+                        <label class="form-label fw-bold text-secondary">
+                            Breed Selection (Multiple Choice)
+                            <span class="sub-lang">Pilihan Baka <span class="sub-lang-bm">| 品种复选</span></span>
+                        </label>
                         <div class="d-flex gap-3 pt-2 bg-white p-2 rounded border">
-                            <div class="form-check"><input class="form-check-input batch-chk" type="checkbox" value="L" id="chkL" checked><label class="form-check-label fw-bold" for="chkL">L (Landrace)</label></div>
-                            <div class="form-check"><input class="form-check-input batch-chk" type="checkbox" value="Y" id="chkY" checked><label class="form-check-label fw-bold" for="chkY">Y (Yorkshire)</label></div>
-                            <div class="form-check"><input class="form-check-input batch-chk" type="checkbox" value="D" id="chkD" checked><label class="form-check-label fw-bold" for="chkD">D (Duroc)</label></div>
-                            <div class="form-check"><input class="form-check-input batch-chk" type="checkbox" value="LY" id="chkLY" checked><label class="form-check-label fw-bold" for="chkLY">LY (Cross)</label></div>
+                            <div class="form-check"><input class="form-check-input batch-chk" type="checkbox" value="L" id="chkL" checked><label class="form-check-label fw-bold" for="chkL">L</label></div>
+                            <div class="form-check"><input class="form-check-input batch-chk" type="checkbox" value="Y" id="chkY" checked><label class="form-check-label fw-bold" for="chkY">Y</label></div>
+                            <div class="form-check"><input class="form-check-input batch-chk" type="checkbox" value="D" id="chkD" checked><label class="form-check-label fw-bold" for="chkD">D</label></div>
+                            <div class="form-check"><input class="form-check-input batch-chk" type="checkbox" value="LY" id="chkLY" checked><label class="form-check-label fw-bold" for="chkLY">LY</label></div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <button class="btn btn-success btn-lg w-100 fw-bold shadow-sm" id="downloadReportBtn">
-                            <i class="fas file-download me-1"></i> 下載篩選後報表數據 (CSV)
+                            <i class="fas fa-file-download me-1"></i> Download Filtered CSV Report
+                            <span class="sub-lang" style="color: #e2e8f0;">Muat turun data CSV | 下载筛选后CSV报表</span>
                         </button>
                     </div>
                 </div>
@@ -160,18 +200,27 @@
             <!-- 查詢結果總表 -->
             <div class="card">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-list me-2 text-secondary"></i>試算表完整資料清單</h5>
-                    <span class="badge bg-secondary" id="totalCount">0 筆</span>
+                    <div>
+                        <h5 class="mb-0 fw-bold">
+                            Complete Master Records
+                            <span class="sub-lang">Rekod Induk Lengkap <span class="sub-lang-bm">| 试算表完整资料清单</span></span>
+                        </h5>
+                    </div>
+                    <span class="badge bg-secondary" id="totalCount">0 Records</span>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0 text-center">
                         <thead class="table-light">
                             <tr>
-                                <th>類別</th><th>等級</th><th>耳號</th><th>品系</th><th>關鍵數值 / 狀態</th>
+                                <th>Category <span class="sub-lang">Kategori | 类别</span></th>
+                                <th>Grade <span class="sub-lang">Gred | 等级</span></th>
+                                <th>Ear Tag <span class="sub-lang">No. Telinga | 耳号</span></th>
+                                <th>Breed <span class="sub-lang">Baka | 品种</span></th>
+                                <th>Key Metrics / Status <span class="sub-lang">Metrik Utama | 核心指数</span></th>
                             </tr>
                         </thead>
                         <tbody id="dataTableBody">
-                            <tr><td colspan="5" class="text-center py-4">資料載入中...</td></tr>
+                            <tr><td colspan="5" class="text-center py-4 text-muted">Loading data... / 数据载入中...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -211,14 +260,14 @@
                 const data = await res.json();
                 rawSows = data.sows || [];
                 rawBoars = data.boars || [];
-                document.getElementById('syncStatus').innerText = "已連線即時資料庫";
+                document.getElementById('syncStatus').innerText = "Live Connected";
                 renderTable();
             } catch (e) {
-                document.getElementById('syncStatus').innerText = "連線失敗";
+                document.getElementById('syncStatus').innerText = "Connection Failed";
             }
         }
 
-        // 模式一：點選公母並輸入耳號，呈現數值方框卡片
+        // 模式一：查詢個體數值卡片
         document.getElementById('executeSearchBtn').addEventListener('click', () => {
             const cat = document.getElementById('searchCategory').value;
             const tagQuery = document.getElementById('searchTagInput').value.trim().toLowerCase();
@@ -227,7 +276,7 @@
             const badge = document.getElementById('resultBadge');
 
             if (!tagQuery) {
-                alert("請先輸入要查詢的耳號！");
+                alert("Please enter an ear tag number! / 请先输入要查询的耳号！");
                 return;
             }
 
@@ -241,15 +290,15 @@
                 });
 
                 if (!found) {
-                    rowBox.innerHTML = `<div class="col-12 text-muted py-3">找不到此母豬耳號的資料。</div>`;
+                    rowBox.innerHTML = `<div class="col-12 text-muted py-3">No record found for this sow tag. / 找不到此母猪耳号的资料。</div>`;
                     badge.className = "badge bg-secondary px-3 py-2 fs-6";
-                    badge.innerText = "查無資料";
+                    badge.innerText = "Not Found";
                     return;
                 }
 
                 const grade = (found["等級"] || found["Grade"] || "B").toUpperCase().charAt(0);
                 badge.className = `badge badge-grade-${grade} px-3 py-2 fs-6`;
-                badge.innerText = `${grade} 級母豬 (Sow)`;
+                badge.innerText = `Grade ${grade} Sow`;
 
                 const tag = found["母豬耳號"] || found["Ear Number"] || "--";
                 const breed = found["親代品系 1"] || found["Breed"] || "--";
@@ -259,12 +308,12 @@
                 const psy = found["PSY (Pigs per sow per year每頭母豬每年離乳豬數 ("] || found["PSY"] || "--";
 
                 rowBox.innerHTML = `
-                    <div class="col-md-3"><div class="metric-box"><div class="metric-label">耳號 (Tag ID)</div><div class="metric-value text-primary">${tag}</div></div></div>
-                    <div class="col-md-3"><div class="metric-box"><div class="metric-label">品種 (Breed)</div><div class="metric-value">${breed}</div></div></div>
-                    <div class="col-md-3"><div class="metric-box"><div class="metric-label">胎次 (Parity)</div><div class="metric-value">第 ${parity} 胎</div></div></div>
-                    <div class="col-md-3"><div class="metric-box"><div class="metric-label">計算 SPI</div><div class="metric-value text-success">${spi}</div></div></div>
-                    <div class="col-md-6"><div class="metric-box"><div class="metric-label">GGP 選拔指數</div><div class="metric-value">${ggp}</div></div></div>
-                    <div class="col-md-6"><div class="metric-box"><div class="metric-label">PSY (年離乳數)</div><div class="metric-value">${psy}</div></div></div>
+                    <div class="col-md-3"><div class="metric-box"><div class="metric-label">Ear Tag <span class="sub-lang">No. Telinga | 耳号</span></div><div class="metric-value text-primary">${tag}</div></div></div>
+                    <div class="col-md-3"><div class="metric-box"><div class="metric-label">Breed <span class="sub-lang">Baka | 品种</span></div><div class="metric-value">${breed}</div></div></div>
+                    <div class="col-md-3"><div class="metric-box"><div class="metric-label">Parity <span class="sub-lang">Pariti | 胎次</span></div><div class="metric-value">P ${parity}</div></div></div>
+                    <div class="col-md-3"><div class="metric-box"><div class="metric-label">Calculated SPI <span class="sub-lang">Indeks SPI | SPI 指数</span></div><div class="metric-value text-success">${spi}</div></div></div>
+                    <div class="col-md-6"><div class="metric-box"><div class="metric-label">GGP Index <span class="sub-lang">Indeks GGP | GGP 选择指数</span></div><div class="metric-value">${ggp}</div></div></div>
+                    <div class="col-md-6"><div class="metric-box"><div class="metric-label">PSY <span class="sub-lang">Anak Cerai/Induk/Tahun | 年离乳数</span></div><div class="metric-value">${psy}</div></div></div>
                 `;
 
             } else {
@@ -274,15 +323,15 @@
                 });
 
                 if (!found) {
-                    rowBox.innerHTML = `<div class="col-12 text-muted py-3">找不到此公豬耳號的資料。</div>`;
+                    rowBox.innerHTML = `<div class="col-12 text-muted py-3">No record found for this boar tag. / 找不到此公猪耳号的资料。</div>`;
                     badge.className = "badge bg-secondary px-3 py-2 fs-6";
-                    badge.innerText = "查無資料";
+                    badge.innerText = "Not Found";
                     return;
                 }
 
                 const grade = (found["Grade"] || found["等級"] || "B").toUpperCase().charAt(0);
                 badge.className = `badge badge-grade-${grade} px-3 py-2 fs-6`;
-                badge.innerText = `${grade} 級公豬 (Boar)`;
+                badge.innerText = `Grade ${grade} Boar`;
 
                 const tag = found["Tag ID"] || found["Boar Ear Tag"] || "--";
                 const breed = found["Breed"] || "--";
@@ -291,11 +340,11 @@
                 const tso = found["TSO"] || "--";
 
                 rowBox.innerHTML = `
-                    <div class="col-md-4"><div class="metric-box"><div class="metric-label">公豬耳號 (Tag ID)</div><div class="metric-value text-primary">${tag}</div></div></div>
-                    <div class="col-md-4"><div class="metric-box"><div class="metric-label">品種 (Breed)</div><div class="metric-value">${breed}</div></div></div>
-                    <div class="col-md-4"><div class="metric-box"><div class="metric-label">策略 (Strategy)</div><div class="metric-value">${strategy}</div></div></div>
-                    <div class="col-md-6"><div class="metric-box"><div class="metric-label">評分 (Score)</div><div class="metric-value text-success">${score}</div></div></div>
-                    <div class="col-md-6"><div class="metric-box"><div class="metric-label">TSO 總精子量</div><div class="metric-value">${tso}</div></div></div>
+                    <div class="col-md-4"><div class="metric-box"><div class="metric-label">Boar Tag <span class="sub-lang">No. Telinga | 公猪耳号</span></div><div class="metric-value text-primary">${tag}</div></div></div>
+                    <div class="col-md-4"><div class="metric-box"><div class="metric-label">Breed <span class="sub-lang">Baka | 品种</span></div><div class="metric-value">${breed}</div></div></div>
+                    <div class="col-md-4"><div class="metric-box"><div class="metric-label">Strategy <span class="sub-lang">Strategi | 策略</span></div><div class="metric-value">${strategy}</div></div></div>
+                    <div class="col-md-6"><div class="metric-box"><div class="metric-label">Score <span class="sub-lang">Skor | 评分</span></div><div class="metric-value text-success">${score}</div></div></div>
+                    <div class="col-md-6"><div class="metric-box"><div class="metric-label">TSO (Total Sperm Output) <span class="sub-lang">Jumlah Mani | 总精子量</span></div><div class="metric-value">${tso}</div></div></div>
                 `;
             }
         });
@@ -306,17 +355,17 @@
             tbody.innerHTML = "";
             
             let allRows = [];
-            rawSows.forEach(i => allRows.push({ type: '母豬', item: i }));
-            rawBoars.forEach(i => allRows.push({ type: '公豬', item: i }));
+            rawSows.forEach(i => allRows.push({ type: 'Sow (母猪)', item: i }));
+            rawBoars.forEach(i => allRows.push({ type: 'Boar (公猪)', item: i }));
 
-            document.getElementById('totalCount').innerText = allRows.length + " 筆";
+            document.getElementById('totalCount').innerText = allRows.length + " Records";
             
             allRows.slice(0, 50).forEach(r => {
-                const isSow = r.type === '母豬';
+                const isSow = r.type.includes('Sow');
                 const tag = isSow ? (r.item["母豬耳號"] || r.item["Ear Number"] || "--") : (r.item["Tag ID"] || r.item["Boar Ear Tag"] || "--");
                 const breed = isSow ? (r.item["親代品系 1"] || r.item["Breed"] || "--") : (r.item["Breed"] || "--");
                 const grade = (r.item["等級"] || r.item["Grade"] || "B").toUpperCase().charAt(0);
-                const info = isSow ? `胎次: ${r.item["胎次"]||1} | SPI: ${r.item["計算 SPI"]||"--"}` : `評分: ${r.item["Score"]||"--"} | TSO: ${r.item["TSO"]||"--"}`;
+                const info = isSow ? `Parity: ${r.item["胎次"]||1} | SPI: ${r.item["計算 SPI"]||"--"}` : `Score: ${r.item["Score"]||"--"} | TSO: ${r.item["TSO"]||"--"}`;
 
                 tbody.innerHTML += `
                     <tr>
@@ -344,7 +393,7 @@
             if (chkD) selectedBreeds.push('D');
             if (chkLY) selectedBreeds.push('LY');
 
-            let csvContent = "\uFEFF類別,等級,耳號,品種,詳細指標\n";
+            let csvContent = "\uFEFFCategory,Grade,EarTag,Breed,Metrics\n";
 
             rawSows.forEach(i => {
                 const grade = (i["等級"] || i["Grade"] || "B").toUpperCase().charAt(0);
@@ -355,7 +404,7 @@
                 const matchBreed = selectedBreeds.length === 0 || selectedBreeds.some(b => breed.includes(b));
 
                 if (matchGrade && matchBreed) {
-                    csvContent += `"母豬","${grade}","${tag}","${breed}","SPI: ${i["計算 SPI"]||""}"\n`;
+                    csvContent += `"Sow","${grade}","${tag}","${breed}","SPI: ${i["計算 SPI"]||""}"\n`;
                 }
             });
 
@@ -368,7 +417,7 @@
                 const matchBreed = selectedBreeds.length === 0 || selectedBreeds.some(b => breed.includes(b));
 
                 if (matchGrade && matchBreed) {
-                    csvContent += `"公豬","${grade}","${tag}","${breed}","Score: ${i["Score"]||""}, TSO: ${i["TSO"]||""}"\n`;
+                    csvContent += `"Boar","${grade}","${tag}","${breed}","Score: ${i["Score"]||""}, TSO: ${i["TSO"]||""}"\n`;
                 }
             });
 
@@ -376,7 +425,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.setAttribute('href', url);
-            a.setAttribute('download', `GLA_Breeding_Grade_Report_${new Date().toISOString().slice(0,10)}.csv`);
+            a.setAttribute('download', `GLA_Breeding_Report_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
