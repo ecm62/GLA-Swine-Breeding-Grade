@@ -27,7 +27,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
     location.reload();
 });
 
-// 2. 透過 JSONP 穿透所有瀏覽器跨域限制載入資料
+// 2. 使用 JSONP 動態腳本載入，免疫瀏覽器 CORS 跨域限制
 function loadDataJSONP() {
     const statusDot = document.getElementById('statusDot');
     const syncStatus = document.getElementById('syncStatus');
@@ -44,24 +44,23 @@ function loadDataJSONP() {
         statusDot.className = "fas fa-circle text-success me-1";
         syncStatus.innerText = `Live Connected (${rawSows.length + rawBoars.length} records)`;
         
-        // 移除載入完成的 script 標籤
         const oldScript = document.getElementById('gasJsonpScript');
         if (oldScript) oldScript.remove();
     };
 
-    // 動態載入腳本
+    // 動態插入 script 標籤載入資料
     const script = document.createElement('script');
     script.id = 'gasJsonpScript';
     script.src = `${API_URL}?callback=handleSheetData&_t=${Date.now()}`;
     script.onerror = function() {
         statusDot.className = "fas fa-circle text-danger me-1";
         syncStatus.innerText = "Connection Failed";
-        alert("連線失敗！請確認 Apps Script 部署已更新為新版本。");
+        alert("連線失敗！請確認 Google Apps Script 已部署為「新版本」且權限為「任何人」。");
     };
     document.body.appendChild(script);
 }
 
-// 輔助函式：標準化字串以供模糊比對
+// 輔助函式：標準化字串以進行模糊比對
 function cleanStr(val) {
     return String(val || "").replace(/\s+/g, '').toLowerCase();
 }
@@ -92,7 +91,7 @@ function performSearch() {
     });
 
     if (matches.length === 0) {
-        fuzzyBox.classList.add('d-none');
+        if (fuzzyBox) fuzzyBox.classList.add('d-none');
         container.style.display = "block";
         document.getElementById('metricBoxesRow').innerHTML = `
             <div class="col-12 text-center py-4 text-muted">
@@ -106,29 +105,31 @@ function performSearch() {
         return;
     }
 
-    candidateBtns.innerHTML = "";
-    if (matches.length > 1) {
-        fuzzyBox.classList.remove('d-none');
-        matches.slice(0, 15).forEach((item, idx) => {
-            const t = item["母豬耳號"] || item["Ear Number"] || item["Tag ID"] || item["Boar Ear Tag"] || item["Nombor Telinga"] || "Unknown";
-            const btn = document.createElement('button');
-            btn.className = `btn btn-sm ${idx === 0 ? 'btn-primary' : 'btn-outline-primary'} fw-bold`;
-            btn.innerText = t;
-            btn.onclick = () => {
-                document.querySelectorAll('#fuzzyCandidateButtons button').forEach(b => b.className = 'btn btn-sm btn-outline-primary fw-bold');
-                btn.className = 'btn btn-sm btn-primary fw-bold';
-                renderProfileCard(cat, item);
-            };
-            candidateBtns.appendChild(btn);
-        });
-    } else {
-        fuzzyBox.classList.add('d-none');
+    if (candidateBtns) {
+        candidateBtns.innerHTML = "";
+        if (matches.length > 1) {
+            fuzzyBox.classList.remove('d-none');
+            matches.slice(0, 15).forEach((item, idx) => {
+                const t = item["母豬耳號"] || item["Ear Number"] || item["Tag ID"] || item["Boar Ear Tag"] || item["Nombor Telinga"] || "Unknown";
+                const btn = document.createElement('button');
+                btn.className = `btn btn-sm ${idx === 0 ? 'btn-primary' : 'btn-outline-primary'} fw-bold`;
+                btn.innerText = t;
+                btn.onclick = () => {
+                    document.querySelectorAll('#fuzzyCandidateButtons button').forEach(b => b.className = 'btn btn-sm btn-outline-primary fw-bold');
+                    btn.className = 'btn btn-sm btn-primary fw-bold';
+                    renderProfileCard(cat, item);
+                };
+                candidateBtns.appendChild(btn);
+            });
+        } else {
+            fuzzyBox.classList.add('d-none');
+        }
     }
 
     renderProfileCard(cat, matches[0]);
 }
 
-// 4. 數值卡片呈現
+// 4. 數值卡片呈現（英文為主，馬來次之，繁體中文為輔）
 function renderProfileCard(cat, item) {
     const container = document.getElementById('individualResultContainer');
     const rowBox = document.getElementById('metricBoxesRow');
@@ -195,7 +196,7 @@ function renderProfileCard(cat, item) {
     }
 }
 
-// 5. 畫布生成與圖檔下載
+// 5. 畫布生成與 PNG 圖檔下載
 document.getElementById('downloadImageBtn').addEventListener('click', () => {
     if (!isDataLoaded) {
         alert("資料載入中，請稍候！");
